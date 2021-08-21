@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\everymath{\displaystyle}
+\usepackage{bm}
+%\usepackage{xcolor}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{remark}{Remark}[section]
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{multirow}
+
+% **** ARA
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\newcommand{\cnum}[1]{\textcolor{red}{\num{#1}}} % 
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage[toc,page]{appendix}
+\newcommand{\pp}{\bm{p}}
+\newcommand{\nn}{\bm{n}}
+% ****
+
+\title{Efficient and Fast Auxiliary Splines Space Preconditioning for $\bm{H}(\textbf{curl},\Omega)-$elliptic problems, using B-Splines Finite Elements}
+
+\author{A. El-Akri$^{1}$, N. Hamid$^{1}$, I. Kissami$^{1}$, N. Ouhaddou$^{1}$, A. Ratnani$^{1}$ 
+\\
+\small{\textit{$^1$MSDA, Mohammed VI Polytechnic University, Green City, Morocco}}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{tex/abstract.tex}
+\end{abstract}
+
+\textcolor{red}{TODO: 
+  \begin{itemize}
+    \item   
+    \item   
+    \item   
+    \item   
+  \end{itemize}
+}
+
+% ********************************************
+% ARA: To be removed later
+\newpage
+\tableofcontents
+\newpage
+% ********************************************
+
+% ********************************************
+\input{tex/introduction.tex}
+\input{tex/preliminaries.tex}
+\input{tex/kronecker.tex}
+\input{tex/asp.tex}
+\input{tex/asp_algo.tex}
+\newpage
+\input{tex/numerical_results.tex}
+% ********************************************
+
+% ********************************************
+\clearpage
+\newpage
+\bibliographystyle{plain}
+\bibliography{references}
+% ********************************************
+
+% ********************************************
+%\clearpage
+%\newpage
+%\input{tex/appendices.tex}
+% ********************************************
+
+\end{document}
+
+
