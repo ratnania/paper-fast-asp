@@ -442,7 +442,7 @@ We consider in the following a block matrix
 \DontPrintSemicolon
 \SetAlgoLined
 \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-\Input{$\mathcal{A}, b, \nu_1$}
+\Input{$\mathcal{A}, x, b, \nu_1$}
 \Output{$x$}
 \BlankLine
 
@@ -466,7 +466,7 @@ We consider in the following a block matrix
 \Output{$x$}
 \BlankLine
 
-  $x_1, x_2, x_3 \gets \texttt{unfold}(x)$ \; 
+  $b_1, b_2, b_3 \gets \texttt{unfold}(b)$ \; 
   $x_1 \gets \texttt{spsolve}(A_{11}, b_1, \texttt{lower}=\texttt{True})$                                    \tcp*{Comment}
   $x_2 \gets \texttt{spsolve}(A_{22}, b_2 - A_{21} x_1, \texttt{lower}=\texttt{True})$                       \tcp*{Comment}
   $x_3 \gets \texttt{spsolve}(A_{33}, b_3 - A_{31} x_1 - A_{32} x_2, \texttt{lower}=\texttt{True})$          \tcp*{Comment}
@@ -485,7 +485,7 @@ We consider in the following a block matrix
 \Output{$x$}
 \BlankLine
 
-  $x_1, x_2, x_3 \gets \texttt{unfold}(x)$ \; 
+  $b_1, b_2, b_3 \gets \texttt{unfold}(b)$ \; 
   $x_3 \gets \texttt{spsolve}(A_{33}, b_3, \texttt{lower}=\texttt{False})$                                    \tcp*{Comment}
   $x_2 \gets \texttt{spsolve}(A_{22}, b_2 - A_{23} x_3, \texttt{lower}=\texttt{False})$                       \tcp*{Comment}
   $x_1 \gets \texttt{spsolve}(A_{11}, b_1 - A_{12} x_2 - A_{13} x_3, \texttt{lower}=\texttt{False})$          \tcp*{Comment}
@@ -585,3 +585,5 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
 \caption{\texttt{spsolve}: Triangular solver for upper Kronecker product matrix, for CSR storage.}
 \end{algorithm} 
 % ...
+
+\subsection{Computational Cost}
