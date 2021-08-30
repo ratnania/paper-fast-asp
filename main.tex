@@ -18,21 +18,192 @@
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{multirow}
 
+
 % **** ARA
 \usepackage{pdflscape}
 \usepackage{siunitx}
 \newcommand{\cnum}[1]{\textcolor{red}{\num{#1}}} % 
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage[toc,page]{appendix}
-\newcommand{\pp}{\bm{p}}
-\newcommand{\nn}{\bm{n}}
+\newcommand{\CG}{\texttt{CG}~}
+\newcommand{\PCG}{\texttt{PCG}~}
+\newcommand{\BICGSTAB}{\texttt{BICGSTAB}~}
+\newcommand{\ASP}{\texttt{ASP}~}
 % ****
 
-\title{Efficient and Fast Auxiliary Splines Space Preconditioning for $\bm{H}(\textbf{curl},\Omega)-$elliptic problems, using B-Splines Finite Elements}
+% ...................................................................
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\mmark}{\ding{169}}%
+\newcommand{\thetatheta}{\boldsymbol{\theta}}
+\newcommand{\glteq}{\sim_{\rm GLT}}
+\newcommand{\gltgrad}{\boldsymbol{\delta [\mathfrak{m}_{p}]}}
+\newcommand{\gltmm}{\boldsymbol{\mathfrak{m}}_{\mathbf{p}}}
+\newcommand{\TrialS}{\mathcal{T}(\mathcal{S}_n^p)}
+\newcommand{\TestS}{\mathcal{T}^{\prime}(\mathcal{S}_n^p)}
 
-\author{A. El-Akri$^{1}$, N. Hamid$^{1}$, I. Kissami$^{1}$, N. Ouhaddou$^{1}$, A. Ratnani$^{1}$ 
+\newcommand{\fracp}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\ut}{\boldsymbol{\tau}} % unit tangent
+\newcommand{\un}{\boldsymbol{\nu}}  % unit normal
+\newcommand{\unh}{\hat{\boldsymbol{\nu}}}  % unit normal on reference element
+
+
+\newcommand{\dd}{\,{\rm d} }
+\newcommand{\UU}{\bm{U}}
+\newcommand{\EE}{\bm{E}}
+\newcommand{\FF}{\bm{F}}
+\newcommand{\GG}{\bm{G}}
+\newcommand{\JJ}{\bm{J}}
+\newcommand{\HH}{\bm{H}}
+\newcommand{\DD}{\bm{D}}
+\newcommand{\BB}{\bm{B}}
+\newcommand{\V}{\bm{V}}
+\newcommand{\ff}{\bm{f}}
+\newcommand{\ee}{\bm{e}}
+\newcommand{\pp}{\bm{p}}
+\newcommand{\uu}{\bm{u}}
+\newcommand{\vv}{\bm{v}}
+\newcommand{\ww}{\bm{w}}
+\newcommand{\xx}{\bm{x}}
+\newcommand{\ii}{\bm{i}}
+\newcommand{\jj}{\bm{j}}
+\newcommand{\kk}{\bm{k}}
+\newcommand{\ttheta}{\bm{\theta}}
+\newcommand{\etaeta}{\boldsymbol{\eta}}
+\newcommand{\mumu}{\boldsymbol{\mu}}
+\newcommand{\xixi}{\boldsymbol{\xi}}
+\newcommand{\Nip}{{N_{\mumu,}^{\pp}}_{\ii}}
+\newcommand{\Njp}{{N_{\mumu,}^{\pp}}_{\jj}}
+
+\newcommand{\Nione}{{N_{\mumu_1,}^{p_1}}_{i_1}}
+\newcommand{\Njone}{{N_{\mumu_1,}^{p_1}}_{j_1}}
+\newcommand{\Nitwo}{{N_{\mumu_2,}^{p_2}}_{i_2}}
+\newcommand{\Njtwo}{{N_{\mumu_2,}^{p_2}}_{j_2}}
+\newcommand{\Nitre}{{N_{\mumu_3,}^{p_3}}_{i_3}}
+\newcommand{\Njtre}{{N_{\mumu_3,}^{p_3}}_{j_3}}
+\newcommand{\Nis}{{N_{\mumu_s,}^{p_s}}_{i_s}}
+\newcommand{\Njs}{{N_{\mumu_s,}^{p_s}}_{j_s}}
+
+\newcommand{\Mione}{{M_{\mumu_1-1,}^{p_1-1}}_{i_1}}
+\newcommand{\Mjone}{{M_{\mumu_1-1,}^{p_1-1}}_{j_1}}
+\newcommand{\Mitwo}{{M_{\mumu_2-1,}^{p_2-1}}_{i_2}}
+\newcommand{\Mjtwo}{{M_{\mumu_2-1,}^{p_2-1}}_{j_2}}
+\newcommand{\Mitre}{{M_{\mumu_3-1,}^{p_3-1}}_{i_3}}
+\newcommand{\Mjtre}{{M_{\mumu_3-1,}^{p_3-1}}_{j_3}}
+\newcommand{\Mis}{{M_{\mumu_s-1,}^{p_s-1}}_{i_s}}
+\newcommand{\Mjs}{{M_{\mumu_s-1,}^{p_s-1}}_{j_s}}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\diffcolor}{\textcolor{blue}}
+\newcommand{\twofluidcolor}{\textcolor{magenta}}
+\newcommand{\termsourcecolor}{\textcolor{darkgreen}}
+\newcommand{\Curl}{\nabla \times}
+\newcommand{\Adv}{\cdot \nabla}
+\newcommand{\Diffp}{\nabla \cdot (D_p \nabla p)}
+\newcommand{\Diffu}{\nabla \cdot (D_u \nabla \mathbf{u})}
+\newcommand{\veca}{\bm{a}}
+\newcommand{\nn}{\bm{n}}
+\newcommand{\dotphi}{\dot{\phi}}
+\newcommand{\PsiPsi}{\boldsymbol{\Psi}}
+\newcommand{\boldbeta}{\boldsymbol{\beta}}
+\newcommand{\boldtheta}{\boldsymbol{\theta}}
+\newcommand{\intline}{\int_{\mathbb{R}}}
+\newcommand{\distreig}{\sim_{\lambda}}
+\newcommand{\distrsv}{\sim_{\sigma}}
+\newcommand{\Rotv}{\boldsymbol{\nabla} \times}
+\newcommand{\Rots}{\nabla \times}
+\newcommand{\Div}{\nabla \cdot}
+\newcommand{\Grad}{\boldsymbol{\nabla}}
+\newcommand{\Ker}[1]{\mbox{Ker}~ #1}
+% ...................................................................
+
+% ...................................................................
+\newcommand{\Gradh}{\mathbb{G}}
+\newcommand{\Curlvh}{\pmb{\mathbb{C}}}
+\newcommand{\Curlh}{\mathbb{C}}
+\newcommand{\Divh}{\mathbb{D}}
+
+\newcommand{\Hgrad}{H^1(\Omega)}
+\newcommand{\Hgradv}{\bm{H}^1(\Omega)}
+\newcommand{\Hcurl}{\bm{H}(\mbox{curl}, \Omega)}
+\newcommand{\Hdiv}{\bm{H}(\mbox{div}, \Omega)}
+\newcommand{\Ltwo}{L^2(\Omega)}
+\newcommand{\Ltwov}{\bm{L}^2(\Omega)}
+\newcommand{\Hgradzero}{H^1_0(\Omega)}
+\newcommand{\Hgradvzero}{\bm{H}^1_0(\Omega)}
+\newcommand{\Hcurlzero}{\bm{H}_0(\mbox{curl}, \Omega)}
+\newcommand{\Hdivzero}{\bm{H}_0(\mbox{div}, \Omega)}
+\newcommand{\Ltwozero}{L^2_0(\Omega)}
+\newcommand{\Ltwovzero}{\bm{L}^2_0(\Omega)}
+\newcommand{\Vgrad}{V_h(\mbox{grad}, \Omega)}
+\newcommand{\Vgradv}{\bm{V}_h(\mbox{grad}, \Omega)}
+\newcommand{\Vcurl}{\bm{V}_h(\mbox{curl}, \Omega)}
+\newcommand{\Vdiv}{\bm{V}_h(\mbox{div}, \Omega)}
+\newcommand{\Vltwo}{V_h(L^2, \Omega)}
+\newcommand{\Cinfinity}{\mathcal{C}^{\infty}(\Omega)}
+
+%\newcommand{\Pigrad}{\boldsymbol{\Pi}_h^{\mbox{\footnotesize{grad}}}}
+%\newcommand{\Picurl}{\boldsymbol{\Pi}_h^{\mbox{\footnotesize{curl}}}}
+%\newcommand{\Pidiv}{ \boldsymbol{\Pi}_h^{\mbox{\footnotesize{div}}}}
+%\newcommand{\Piltwo}{\boldsymbol{\Pi}_h^{\footnotesize{L^2}}}
+
+\newcommand{\Picurlx}{\boldsymbol{\Pi}_h^{\mbox{\footnotesize{curl},1}}}
+\newcommand{\Picurly}{\boldsymbol{\Pi}_h^{\mbox{\footnotesize{curl},2}}}
+\newcommand{\Picurlz}{\boldsymbol{\Pi}_h^{\mbox{\footnotesize{curl},3}}}
+\newcommand{\Picurlk}{\boldsymbol{\Pi}_h^{\mbox{\footnotesize{curl},k}}}
+
+%\newcommand{\Pigrad}{\pi_h^{\footnotesize{0}}}
+%\newcommand{\Picurl}{\pi_h^{\footnotesize{1}}}
+%\newcommand{\Pidiv}{\pi_h^{\footnotesize{2}}}
+%\newcommand{\Piltwo}{\pi_h^{\footnotesize{3}}}
+
+\newcommand{\Pigrad}{P_h^{\mbox{\footnotesize{grad}}}}
+\newcommand{\Picurl}{P_h^{\mbox{\footnotesize{curl}}}}
+\newcommand{\Pidiv}{P_h^{\mbox{\footnotesize{div}}}}
+\newcommand{\Piltwo}{P_h^{\footnotesize{L^2}}}
+
+\newcommand{\diff}{\mathrm{d}\,}
+
+
+\newcommand{\HgradLogical}{H^1(\hat{\Omega})}
+\newcommand{\HcurlLogical}{{H}(\mbox{curl}, \hat{\Omega})}
+\newcommand{\HdivLogical}{{H}(\mbox{div}, \hat{\Omega})}
+\newcommand{\LtwoLogical}{L^2(\hat{\Omega})}
+\newcommand{\igrad}{\imath^{0}}
+\newcommand{\icurl}{\imath^{1}}
+\newcommand{\idiv}{\imath^{2}}
+\newcommand{\iltwo}{\imath^{3}}
+\newcommand{\VgradLogical}{V_h(\mbox{grad}, \hat{\Omega})}
+\newcommand{\VcurlLogical}{{V}_h(\mbox{curl}, \hat{\Omega})}
+\newcommand{\VdivLogical}{{V}_h(\mbox{div}, \hat{\Omega})}
+\newcommand{\VltwoLogical}{V_h(L^2, \hat{\Omega})}
+
+\newcommand{\Vgradspline}{\mathcal{S}^{p,p,p}}
+\newcommand{\Vltwospline}{\mathcal{S}^{p-1,p-1,p-1}}
+\newcommand{\Vcurlspline}{
+  \begin{pmatrix}
+    \mathcal{S}^{p-1,p,p} \\ 
+    \mathcal{S}^{p,p-1,p} \\ 
+    \mathcal{S}^{p,p,p-1}
+  \end{pmatrix}
+}
+\newcommand{\Vdivspline}{
+  \begin{pmatrix}
+    \mathcal{S}^{p,p-1,p-1} \\ 
+    \mathcal{S}^{p-1,p,p-1} \\ 
+    \mathcal{S}^{p-1,p-1,p}
+  \end{pmatrix}
+}
+
+\newcommand{\matrixIdentity}{\mathbb{I}}
+
+\title{Efficient and Fast Auxiliary Splines Space Preconditioning B-Splines Mixed Finite Elements}
+
+\author{Y. Gu\c{c}lu$^{1}$, N. Hamid$^{2}$, I. Kissami$^{2}$, N. Ouhaddou$^{2}$, A. Ratnani$^{2}$ 
 \\
-\small{\textit{$^1$MSDA, Mohammed VI Polytechnic University, Green City, Morocco}}
+\small{\textit{$^1$Max-Planck-Institut fur Plasmaphysik, Garching, Germany}}
+\\
+\small{\textit{$^2$MSDA, Mohammed VI Polytechnic University, Green City, Morocco}}
 }
 
 \begin{document}
@@ -63,6 +234,7 @@
 \input{tex/introduction.tex}
 \input{tex/preliminaries.tex}
 \input{tex/asp.tex}
+\input{tex/matrix_form.tex}
 \input{tex/asp_algo.tex}
 \newpage
 \input{tex/kronecker.tex}
