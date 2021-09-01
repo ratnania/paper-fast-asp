@@ -29,6 +29,7 @@
 \newcommand{\PCG}{\texttt{PCG}~}
 \newcommand{\BICGSTAB}{\texttt{BICGSTAB}~}
 \newcommand{\ASP}{\texttt{ASP}~}
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
 % ****
 
 % ...................................................................
@@ -199,11 +200,11 @@
 
 \title{Efficient and Fast Auxiliary Splines Space Preconditioning B-Splines Mixed Finite Elements}
 
-\author{Y. Gu\c{c}lu$^{1}$, N. Hamid$^{2}$, I. Kissami$^{2}$, N. Ouhaddou$^{2}$, A. Ratnani$^{2}$ 
+\author{A. El-Akri$^{1}$, Y. Gu\c{c}lu$^{2}$, N. Hamid$^{1}$, I. Kissami$^{1}$, N. Ouhaddou$^{1}$, A. Ratnani$^{1}$ 
 \\
-\small{\textit{$^1$Max-Planck-Institut fur Plasmaphysik, Garching, Germany}}
+\small{\textit{$^1$MSDA, Mohammed VI Polytechnic University, Green City, Morocco}}
 \\
-\small{\textit{$^2$MSDA, Mohammed VI Polytechnic University, Green City, Morocco}}
+\small{\textit{$^2$Max-Planck-Institut fur Plasmaphysik, Garching, Germany}}
 }
 
 \begin{document}
@@ -233,12 +234,13 @@
 % ********************************************
 \input{tex/introduction.tex}
 \input{tex/preliminaries.tex}
-\input{tex/asp.tex}
-\input{tex/matrix_form.tex}
-\input{tex/asp_algo.tex}
-\newpage
+\input{tex/approximation.tex}
 \input{tex/kronecker.tex}
 \clearpage
+\input{tex/matrix_form.tex}
+\input{tex/asp.tex}
+\input{tex/algo.tex}
+\newpage
 \input{tex/numerical_results.tex}
 % ********************************************
 

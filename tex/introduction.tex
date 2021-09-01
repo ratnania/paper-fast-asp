@@ -1,72 +1,36 @@
 \section{Introduction}
-The {\em IsoGeometric Analysis}, or IGA for short, is a mathematical approach that incorporates two disciplines, namely {\em Finite Element Methods} (FEMs)  and {\em Computer-Aided Design} (CAD) in order to design and analyze the numerical approximation of {\em Partial Differential Equations} (PDEs). Similarly to the FEM, solving a problem in partial differential equations by the isogeometric methods consist of a variational formulation of the problem and the specification of a finite-dimensional subspace of the function space where the solution belongs to, and then the construction of basis functions for this subspace.  However, in contrast to FEM, these functions are the same functions used for the presentation of the underlying domain which usually employs B-spline or more generally complex Non-Uniform Rational B-splines (NURBS) functions (commonly used in CAD world). This strategy leads at least to two main advantages, with respect to FEM: first isogeometric analysis employs the exact geometry and there is no geometric approximation error, and secondly, the use of $B$-spline functions, instead of the standard Lagrange and Hermite polynomials based finite element method, has the advantage of being more suitable for higher $C^p$-continuous interpolation.
+\todo{TODO: rewrite the introduction}
 
-The literature on IGA has rapidly developed in the last years
-starting from the work Ref., and by now there is large contributions on the field. For instance, this new approach has been used in electromagnetism Refs., in incompressible fluid dynamics Ref., in fluid-structure interaction Refs., in structural and contact mechanics Refs, in Plasmas physics problems Ref. and in the Kinetic systems Refs. and many others. For an extensive overview we reefer the reader to the review paper Ref., see also Refs.
+%The {\em IsoGeometric Analysis}, or IGA for short, is a mathematical approach that incorporates two disciplines, namely {\em Finite Element Methods} (FEMs)  and {\em Computer-Aided Design} (CAD) in order to design and analyze the numerical approximation of {\em Partial Differential Equations} (PDEs). Similarly to the FEM, solving a problem in partial differential equations by the isogeometric methods consist of a variational formulation of the problem and the specification of a finite-dimensional subspace of the function space where the solution belongs to, and then the construction of basis functions for this subspace.  However, in contrast to FEM, these functions are the same functions used for the presentation of the underlying domain which usually employs B-spline or more generally complex Non-Uniform Rational B-splines (NURBS) functions (commonly used in CAD world). This strategy leads at least to two main advantages, with respect to FEM: first isogeometric analysis employs the exact geometry and there is no geometric approximation error, and secondly, the use of $B$-spline functions, instead of the standard Lagrange and Hermite polynomials based finite element method, has the advantage of being more suitable for higher $C^p$-continuous interpolation.
+%
+%The literature on IGA has rapidly developed in the last years
+%starting from the work Ref., and by now there is large contributions on the field. For instance, this new approach has been used in electromagnetism Refs., in incompressible fluid dynamics Ref., in fluid-structure interaction Refs., in structural and contact mechanics Refs, in Plasmas physics problems Ref. and in the Kinetic systems Refs. and many others. For an extensive overview we reefer the reader to the review paper Ref., see also Refs.
+%
+%Despite the large success of the method, it is worth mentioning, however, that one critical aspect is that when we are dealing with higher-order IGA finite elements, the use of B-spline functions generates matrices  which are denser than the FEM matrices. In general, this leads to condition number that is not uniformly bounded with respect to discretization parameter $h$ and can even grow rapidly  when $h$ goes to zero,  this fact has been observed numerically by various authors and proved analytically in Ref. As a consequence, the employing of standard numerical solution methods for IGA discrete systems may fail and preconditioning is necessary to obtain convergence in a reasonable amount of time.
+%
+%To overcome the difficulties given by the observed ill-onditioning, several techniques have been developed in the literature. For instance, {\em additive Schwarz algorithms} were successfully  implemented in Ref. and a good convergence behavior of the preconditioners with respect to discretization parameters  $h$, $p$ and $k$ was observed. The analysis in
+%Ref. done in the context of scalar elliptic problems while a technical generalization to the system of linear elasticity has developed later in Ref. The hints proposed in Refs. have been generalized in several directions 
+%
+%\newpage
 
-Despite the large success of the method, it is worth mentioning, however, that one critical aspect is that when we are dealing with higher-order IGA finite elements, the use of B-spline functions generates matrices  which are denser than the FEM matrices. In general, this leads to condition number that is not uniformly bounded with respect to discretization parameter $h$ and can even grow rapidly  when $h$ goes to zero,  this fact has been observed numerically by various authors and proved analytically in Ref. As a consequence, the employing of standard numerical solution methods for IGA discrete systems may fail and preconditioning is necessary to obtain convergence in a reasonable amount of time.
-
-To overcome the difficulties given by the observed ill-onditioning, several techniques have been developed in the literature. For instance, {\em additive Schwarz algorithms} were successfully  implemented in Ref. and a good convergence behavior of the preconditioners with respect to discretization parameters  $h$, $p$ and $k$ was observed. The analysis in
-Ref. done in the context of scalar elliptic problems while a technical generalization to the system of linear elasticity has developed later in Ref. The hints proposed in Refs. have been generalized in several directions 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\newpage
-
-
-On a bounded domain $\Omega \subset \mathbb{R}^3$, we consider the following variational problem
-\begin{equation}\label{eq:curl-variational-problem}
-\begin{cases}
-\bm{u} \in \bm{H}(\textbf{curl},\Omega), \, \forall \bm{v} \in \bm{H}(\textbf{curl},\Omega):\\
-\left( \textbf{curl}\ (\bm{u}),\textbf{curl}\, (\bm{v})\right)_{\mathbb{L}^2(\Omega)} + \mu \left( \bm{u},\bm{v}\right)_{\mathbb{L}^2(\Omega)}=\left( \bm{f}, \bm{v}\right)_{\mathbb{L}^2(\Omega)}, 
-\end{cases}
-\end{equation}
-where $0<\mu \ll 1$ and $\bm{f} \in \left(L^2(\Omega)\right)^3$. We recall that 
-\begin{equation*}
-\bm{H}(\textbf{curl},\Omega) = \left \{ \bm{u} \in  \left(L^2(\Omega)\right)^3 \,:\, \textbf{curl}\ (\bm{u}) \in \left(L^2(\Omega)\right)^3\right\},
-\end{equation*}
-equipped with the norm
-\begin{equation*}
-\|\bm{u}\|_{\bm{H}(\textbf{curl},\Omega)}^2=\|\bm{u}\|_{\left(L^2(\Omega)\right)^3}^2+\|\textbf{curl}\, (\bm{u})\|_{\left(L^2(\Omega)\right)^3}^2.
-\end{equation*}
-
-
-
-
+We consider the following variational problems, on a bounded domain $\Omega \subset \mathbb{R}^d$, with $d \in \{2, 3\}$:   
+\begin{subequations}
+  \begin{equation}\label{eq:curl-variational-problem}
+      \bm{u} \in \Hcurlzero: \quad
+      \left( \Curl \uu, \Curl \vv \right)_{\mathbb{L}^2(\Omega)} + \mu \left( \uu,\vv \right)_{\mathbb{L}^2(\Omega)}=\left( \ff, \vv \right)_{\mathbb{L}^2(\Omega)} \quad \forall \bm{v} \in \Hcurlzero 
+  \end{equation}
+  \begin{equation}\label{eq:div-variational-problem}
+      \bm{u} \in \Hdivzero: \quad
+      \left( \Div \uu, \Div \vv \right)_{\mathbb{L}^2(\Omega)} + \mu \left( \uu,\vv \right)_{\mathbb{L}^2(\Omega)}=\left( \ff, \vv \right)_{\mathbb{L}^2(\Omega)} \quad \forall \bm{v} \in \Hdivzero 
+  \end{equation}
+%  \label{}
+\end{subequations}
+where $0<\mu \ll 1$ and $\bm{f} \in \left(L^2(\Omega)\right)^3$. 
+%We recall that 
+%\begin{equation*}
+%\bm{H}(\textbf{curl},\Omega) = \left \{ \bm{u} \in  \left(L^2(\Omega)\right)^3 \,:\, \textbf{curl}\ (\bm{u}) \in \left(L^2(\Omega)\right)^3\right\},
+%\end{equation*}
+%equipped with the norm
+%\begin{equation*}
+%\|\bm{u}\|_{\bm{H}(\textbf{curl},\Omega)}^2=\|\bm{u}\|_{\left(L^2(\Omega)\right)^3}^2+\|\textbf{curl}\, (\bm{u})\|_{\left(L^2(\Omega)\right)^3}^2.
+%\end{equation*}

@@ -1,0 +1,231 @@
+%\section{Global approximation}
+%\subsection{Splines Interpolation}
+%Given the set of interpolations points $X:=\{ x_0, \cdots,x_n\}$ and data $Y:=\{ y_0, \cdots,y_n\}$, we aim to find a spline $s$ such that $y_i = s(x_i)$ . The Spline interpolation problems is
+%\begin{definition}[Spline interpolation]
+%  Find a spline $s := \sum\limits_{j=0}^n c_j N_j^p \in \mathcal{S}_p(T)$ such that
+%  \begin{align}
+%    s(x_i) = y_{i} \quad \quad 0 \leq i \leq n
+%%    \label{}
+%  \end{align}
+%\end{definition}
+%In a matrix form, the Spline interpolation problem writes
+%\begin{align}
+%  M c = y
+%  \label{eq:interpolation-linsys}
+%\end{align}
+%where $c$ is the unkown vector of the spline coefficients, 
+%\begin{align*}
+%  c =  
+%  \begin{pmatrix}
+%    c_0\\
+%    c_1\\
+%    \vdots    \\ 
+%    c_n\\
+%  \end{pmatrix}
+%\end{align*}
+%$M$ is the \textbf{collocation matrix} given by
+%\begin{align}
+%  M = 
+%  \begin{pmatrix}
+%    N_0^p(x_0) & \ldots & N_n^p(x_0) \\
+%    N_0^p(x_1) & \ldots & N_n^p(x_1) \\
+%    \vdots     & \ldots & \vdots \\
+%    N_0^p(x_n) & \ldots & N_n^p(x_n) \\
+%  \end{pmatrix}
+%  \label{eq:collocation-matrix}
+%\end{align}
+%while $y$ is the given data
+%\begin{align*}
+%  y =  
+%  \begin{pmatrix}
+%    y_0\\
+%    y_1\\
+%    \vdots    \\ 
+%    y_n\\
+%  \end{pmatrix}
+%\end{align*}
+%Notice that when interpolating a function $f$, the given data will be $y_i := f(x_i)$.
+%\\
+%\noindent
+%In general the linear system given by the Eq. \ref{eq:interpolation-linsys} is not always solvable. The following result by Whitney-Schoenberg gives a necessary and sufficient condition to ensure that the interpolation problem has a unique solution. 
+%\begin{theorem}
+%  The collocation matrix is nonsingular if and only if the diagonal elements are positive, \textit{i.e.}
+%  \begin{align}
+%    N_i^p(x_i) > 0 \quad \forall i \in \{ 0, \ldots, n \}
+%    \label{eq:whitney-schoenberg-condition}
+%  \end{align}
+%  This condition is also equivalent to 
+%  \begin{align}
+%    t_i < x_i < t_{i+p+1} \quad \forall i \in \{ 0, \ldots, n \}
+%    \label{eq:whitney-schoenberg-condition-knots}
+%  \end{align}
+%  \label{thm:whitney-schoenberg}
+%\end{theorem}
+\subsection{Splines Histopolation}
+In this subsection, we present the histopolation problem and its matrix form.
+In opposition to the interpolation problem, where we preserve the values of a function on a given nodes, another interesting way to approximate a function,  is to preserve the integrals between given points, rather than the value of the function on these points. Given the set of interpolations points $X:=\{ x_0, \cdots,x_{n+1} \}$ and a continuous function $f$, the histopolation problem writes 
+\begin{definition}[Spline histopolation]
+  Find a spline $s := \sum\limits_{j=0}^{n} c_j N_j^p \in \mathcal{S}_p(T)$ such that
+  \begin{align}
+    \int_{x_i}^{x_{i+1}} s ~dx = \int_{x_i}^{x_{i+1}} f ~dx \quad \quad 0 \leq i \leq n
+%    \label{}
+  \end{align}
+\end{definition}
+\noindent
+In a matrix form, the Spline histopolation problem writes $ H c = y $ where $H$ is the \textbf{histopolation matrix}, $c$ is the unkown vector of the spline coefficients and $y$ is the given data, are given by
+\begin{align*}
+  c =  
+  \begin{bmatrix}
+    c_0\\
+    c_1\\
+    \vdots    \\ 
+    c_n\\
+  \end{bmatrix}
+  \quad
+  H = 
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}N_0^p ~dx   & \ldots & \int_{x_0}^{x_{1}}N_n^p ~dx   \\
+    \int_{x_1}^{x_{2}}N_0^p ~dx   & \ldots & \int_{x_1}^{x_{2}}N_n^p ~dx   \\
+    \vdots                        & \ldots &                        \vdots \\
+    \int_{x_n}^{x_{n+1}}N_0^p ~dx & \ldots & \int_{x_n}^{x_{n+1}}N_n^p ~dx \\
+  \end{bmatrix}
+  \quad
+  y =  
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}f ~dx\\
+    \int_{x_1}^{x_{2}}f ~dx\\
+    \vdots    \\ 
+    \int_{x_n}^{x_{n+1}}f ~dx\\
+  \end{bmatrix}
+%  \label{eq:histopolation-matrix}
+\end{align*}
+We recall that the histopolation matrix $H$ is non singular iff  $t_i < x_i < t_{i+p+1} \quad \forall i \in \{ 0, \ldots, n \}$ \todo{add citation}.
+%\begin{theorem}
+%  The histopolation matrix is nonsingular if and only if 
+%  \begin{align}
+%    t_i < x_i < t_{i+p+1} \quad \forall i \in \{ 0, \ldots, n \}
+%    \label{eq:whitney-schoenberg-condition-histo-knots}
+%  \end{align}
+%  \label{thm:whitney-schoenberg-histo}
+%\end{theorem}
+%\begin{proof}
+%  TODO
+%\end{proof}
+
+\paragraph{Histopolation using M-Splines} \mbox{}\\
+Rather than using the B-Splines for the histopolation problem, one can use the M-Splines. In this case, the histopolation matrix can be computed easily using the following result.
+\begin{proposition}
+  For every $0 \le i \le  n$ and $0 \le j \le n$, we have
+  \begin{align}
+    \int_{x_i}^{x_{i+1}} M_j^p(t) ~dt = \sum_{k=0}^{j-1} \left( N_k^p(x_i) - N_k^p(x_{i+1}) \right)  
+%    \label{}
+  \end{align}
+%  \label{}
+\end{proposition}
+\begin{proof}
+Integrating the relation $\frac{d}{dt}N_k^p(t)=M_k^{p}(t)-M_{k+1}^{p}(t)$ on the interval $[x_i, x_{i+1}]$, we have
+\begin{align*}
+  N_k^p(x_{i+1}) - N_k^p(x_i) = \int_{x_i}^{x_{i+1}} \left( M_k^{p}(t)-M_{k+1}^{p}(t) \right) ~dt 
+%  \label{}
+\end{align*}
+summing the last equation for $k=0$ to $k=j-1$, we get
+\begin{align*}
+  \sum_{k=0}^{j-1} \left( N_k^p(x_{i+1}) - N_k^p(x_i) \right) 
+  &= \int_{x_i}^{x_{i+1}} \sum_{k=0}^{j-1} \left( M_k^{p}(t)-M_{k+1}^{p}(t) \right) ~dt 
+  \\
+  &= \int_{x_i}^{x_{i+1}} \left( M_0^{p}(t)-M_{j}^{p}(t) \right) ~dt 
+%  \label{}
+\end{align*}
+hence,
+\begin{align*}
+  \int_{x_i}^{x_{i+1}} M_{j}^{p}(t) ~dt = \sum_{k=0}^{j-1} \left( N_k^p(x_{i}) - N_k^p(x_{i+1}) \right) 
+%  \label{}
+\end{align*}
+\end{proof}
+%\begin{remark}
+%  The last result gives an optimized implementation for the assembly of the histopolation matrix, since the right hand side term can be computed by accumulating the summation for each $j$.
+%\end{remark}
+
+%\paragraph{Commuting diagram} \mbox{}\\
+%Let us define the following discrete spline spaces 
+%\begin{align}
+%  V_0 := \mbox{span}\left( N_j^p, 0 \leq j \leq n  \right) 
+%  \\
+%  V_1 := \mbox{span}\left( M_j^{p-1}, 0 \leq j \leq n \right) 
+%%  \label{}
+%\end{align}
+%We also define the operators $\pi_0$ and $\pi_1$ as the interpolation and histopolation operators on $V_0$ and $V_1$ respectively.
+%We have the following result
+%%
+%\begin{lemma}
+%  $\forall u \in H^s(\Omega)$, we have $~~ \diff \pi_0(u) = \pi_1 \left( \diff u \right) $
+%%  \label{}
+%\end{lemma}
+\noindent
+A special case, which is of interest for our Auxiliary Space Preconditioning method, is when the function lives in $\mathcal{S}_p(T)$ and the histopolation is done on $\mathcal{S}_{p-1}(T)$ using M-Splines. In general this gives a singular problem, but when using Dirichlet Homogeneous boundary conditions, the dimension of both spaces are equal, after removing the interpolating degrees of freedom. 
+\noindent
+Let $u := \sum\limits_{1 \le j \le n-1} u_j \Njone$, we have
+\begin{align}
+  \int_{x_i}^{x_{i+1}} u ~dx = \sum\limits_{1 \le j \le n} u_j \int_{x_i}^{x_{i+1}} \Njone ~dx \quad \quad 1 \leq i \leq n-1
+\end{align}
+which can be written in a matrix form as
+\begin{align*}
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}u ~dx\\
+    \int_{x_1}^{x_{2}}u ~dx\\
+    \vdots    \\ 
+    \int_{x_n}^{x_{n+1}}u ~dx\\
+  \end{bmatrix}
+  &=
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}N_1^p ~dx   & \ldots & \int_{x_0}^{x_{1}}N_{n-1}^p ~dx   \\
+    \int_{x_1}^{x_{2}}N_1^p ~dx   & \ldots & \int_{x_1}^{x_{2}}N_{n-1}^p ~dx   \\
+    \vdots                        & \ldots &                        \vdots \\
+    \int_{x_n}^{x_{n+1}}N_1^p ~dx & \ldots & \int_{x_n}^{x_{n+1}}N_{n-1}^p ~dx \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    u_1\\
+    u_2\\
+    \vdots\\ 
+    u_{n-1}\\
+  \end{bmatrix}
+  \\
+  &= 
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}M_1^{p-1} ~dx   & \ldots & \int_{x_0}^{x_{1}}M_{n-1}^{p-1} ~dx   \\
+    \int_{x_1}^{x_{2}}M_1^{p-1} ~dx   & \ldots & \int_{x_1}^{x_{2}}M_{n-1}^{p-1} ~dx   \\
+    \vdots                        & \ldots &                        \vdots \\
+    \int_{x_n}^{x_{n+1}}M_1^{p-1} ~dx & \ldots & \int_{x_n}^{x_{n+1}}M_{n-1}^{p-1} ~dx \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    u_1^\star\\
+    u_2^\star\\
+    \vdots\\ 
+    u_{n-1}^\star\\
+  \end{bmatrix}
+%  \label{}
+\end{align*}
+Finaly, we get
+\begin{align}
+  U^\star = H_{M}^{-1} H_{B} U  
+%  \label{}
+\end{align}
+with
+\begin{align}
+  H_{M} &:= 
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}M_1^{p-1} ~dx   & \ldots & \int_{x_0}^{x_{1}}M_{n-1}^{p-1} ~dx   \\
+    \int_{x_1}^{x_{2}}M_1^{p-1} ~dx   & \ldots & \int_{x_1}^{x_{2}}M_{n-1}^{p-1} ~dx   \\
+    \vdots                        & \ldots &                        \vdots \\
+    \int_{x_n}^{x_{n+1}}M_1^{p-1} ~dx & \ldots & \int_{x_n}^{x_{n+1}}M_{n-1}^{p-1} ~dx \\
+  \end{bmatrix}
+  \\
+  H_{B} &:= 
+  \begin{bmatrix}
+    \int_{x_0}^{x_{1}}N_1^p ~dx   & \ldots & \int_{x_0}^{x_{1}}N_{n-1}^p ~dx   \\
+    \int_{x_1}^{x_{2}}N_1^p ~dx   & \ldots & \int_{x_1}^{x_{2}}N_{n-1}^p ~dx   \\
+    \vdots                        & \ldots &                        \vdots \\
+    \int_{x_n}^{x_{n+1}}N_1^p ~dx & \ldots & \int_{x_n}^{x_{n+1}}N_{n-1}^p ~dx \\
+  \end{bmatrix}
+%  \label{}
+\end{align}

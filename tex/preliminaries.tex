@@ -1,99 +1,101 @@
 \section{Preliminaries}
-In this section we fix some notations and we recall some preliminary results which will be used in the paper. In details, in Subsection \ref{subsec:functional-spaces} after introducing the functional spaces we recall a theoretical result corresponds to so-called regular decomposition of a three dimensional vector filed, which will be fundamental for our study of the discrete curl-curl problem discussed in Section \ref{sec:asp}. Then we summarize in Subsection \ref{subsec:Auxiliary-Space-Preconditioning-Method} the essentials of the abstract theory of Auxiliary Space Preconditioning (ASP) method. The last subsection is devoted to IsoGeometric Analysis (IGA) with some relevant properties of IsoGeometric spaces.
+\todo{TODO: add missing parts}
 
-
-    
-\subsection{Functional Spaces: Notation and Results}\label{subsec:functional-spaces}
-Throughout this paper we shell work with {\em Sobolev spaces} and recall here some standard notations. For a more detailed presentation we refer to \cite{adams2003sobolev,girault2012finite,monk2003finite}. For a bounded domain $\Omega \subset \mathbb{R}^3$, the Hilbert space $L^2(\Omega)$ denotes the {\em Lebesgue square-integrable functions} on $\Omega$ equipped with standard $L^2(\Omega)$ norm. Given a positive integer $s$, we denote by $H^s(\Omega)$ the Sobolev space of order $s$ on $\Omega$, namely the space of functions in $L^2(\Omega)$ with $s$th-order derivatives, in the sense of distributions, also in $L^2(\Omega)$ endowed with the standard norm $\|\cdot\|_{H^s(\Omega)}$. Note that, by definition we have $H^0(\Omega)=L^2(\Omega)$. For the correspond vectorial spaces we use the notations $\mathbb{L}^2(\Omega):=\left(L^2(\Omega)\right)^3$ and $\mathbb{H}^s(\Omega):=\left(H^s(\Omega)\right)^3$. However, we shall need also the following Hilbert spaces
-\begin{equation*}
-\bm{H}(\textbf{curl},\Omega)=\left\{ \bm{u} \in \mathbb{L}^2(\Omega),\: \, \textbf{curl}\,(\bm{u})\in \mathbb{L}^2(\Omega)\right\}, \; \bm{H}(\text{div},\Omega)=\left\{ \bm{v} \in \mathbb{L}^2(\Omega),\: \, \text{div}\,(\bm{v})\in L^2(\Omega)\right\},
-\end{equation*}
-equipped with the norms
-\begin{equation*}
-\|\bm{u}\|_{\bm{H}(\textbf{curl},\Omega)}^2=\|\bm{u}\|_{\mathbb{L}^2(\Omega)}^2 + \|\textbf{curl}\,(\bm{u})\|_{\mathbb{L}^2(\Omega)}^2, \; \|\bm{v}\|_{\bm{H}(div,\Omega)}^2=\|\bm{v}\|_{\mathbb{L}^2(\Omega)}^2 + \|\text{div}\,(\bm{v})\|_{L^2(\Omega)}^2,
-\end{equation*}
-respectively.
-
-We are now ready to provide regular decomposition of space $\bm{H}(\textbf{curl},\Omega)$. However, to keep the presentation focused we assume that {\em $\Omega$ is homotopy equivalent to a ball}. A consequence of this assumption is that the following DeRham complex 
-\begin{align*}
-    \begin{array}{ccccc}
-   H^1(\Omega) & \xrightarrow{\quad \textbf{grad} \quad } & \bm{H}(\textbf{curl},\Omega) & \xrightarrow{\quad \textbf{curl} \quad } & \bm{H}(\text{div},\Omega)
-  \end{array}
-\end{align*}
-is exact, meaning that $\textbf{grad} \left( H^1(\Omega)\right)=\text{ker}(\textbf{curl})$
-
-
-The following theorem is essentially, for instance see \cite{pasciak2002overlapping,zhao2004analysis}.
-
-\begin{theorem}[Regular decomposition of $\mathbf{H}(\textbf{curl},\Omega)$]\label{regular-decomposition-of-H(curl)}
-For each $\mathbf{u} \in \bm{H}(\textbf{curl},\Omega)$, there exist $\bm{\varphi} \in \mathbb{H}^1(\Omega)$ and $\phi \in H^1(\Omega)$ such that
-\begin{itemize}
-\item[(i)] $\bm{u}=\bm{\varphi}+ \textbf{grad}\, (\phi)$;
-
-%$\textbf{curl}\,(\bm{u})=\textbf{curl}\,(\bm{\varphi})$;
-
-\item[(ii)] $\|\bm{\varphi}\|_{\mathbb{H}^1(\Omega)} \leq C\|\textbf{curl}\,(\bm{u})\|_{\mathbb{L}^2(\Omega)}$;
-
-\item[(iii)] $\|\bm{\varphi}\|_{\mathbb{L}^2(\Omega)} \leq C \|\bm{u}\|_{\mathbb{L}^2(\Omega)}$,
-\end{itemize}
-where $C$ is a positive constant depending only on the shape of $\Omega$.
-\end{theorem}
-
-\begin{remark}
-From decomposition $(i)$, since $\textbf{grad}\, (\phi) \in \text{ker}\, (\textbf{curl})$, we deduce that $\textbf{curl}\,(\bm{u})=\textbf{curl}\,(\bm{\varphi})$.
-\end{remark}
-
-\begin{remark}
-In the general case in which $\Omega$ is simply a three-dimensional polyhedral domain, the result of the theorem can be generalized  as follows: For each $\bm{u} \in \bm{H}(\textbf{curl},\Omega)$, there exists $\bm{\varphi} \in \mathbb{H}^1(\Omega)$ such that $\textbf{curl}\,(\bm{u})=\textbf{curl}\,(\bm{\varphi})$ with estimates $(ii)-(iii)$. For the proof see \cite{kolev2009parallel}.
-\end{remark}
-
-In Section \ref{sec:asp}, in Theorem \ref{thm:stable-Hitpmair-Xu-decomposition}, we will show a discrete version of Theorem \ref{regular-decomposition-of-H(curl)}.
- 
-\subsection{Auxiliary Space Preconditioning (ASP) Method}\label{subsec:Auxiliary-Space-Preconditioning-Method}
-For completeness, we give in this subsection the main ingredients of the {\em ASP method}, for a general discussion of the method the reader is referred to \cite{chen2015auxiliary,hiptmair2006auxiliary,hiptmair2007nodal,kolev2008auxiliary,kolev2009parallel,nepomnyaschikh1991decomposition,xu1992iterative} and references therein. 
-
-Let $V$ be a Hilbert space and $a\,:\, V \times V \longrightarrow \mathbb{R}$ some inner product defined on $V$. The main ingredients of the method are {\em auxiliary spaces}, {\em transfer operators} and what is called the {\em smoother}. The auxiliary spaces are Hilbert spaces, say $W_1$ and $W_2$, equipped  with some inner products ${a}_1 \,:\, W_1 \times W_1 \longrightarrow \mathbb{R}$ and ${a}_2 \,:\, W_2 \times W_2 \longrightarrow  \mathbb{R}$. The transfer operators are linear operators $\pi_1\,:\, W_1 \longrightarrow V$ and $\pi_2 \,:\, W_1 \longrightarrow V$ transferring the auxiliary spaces to the original space $V$. The smoother is simply an inner product $r\,:\, V \times V \longrightarrow \mathbb{R}$ defined on $V$. With these considerations the ASP preconditioner is given by
-\begin{equation*}\label{eq:ASP-preconditione}
-B=R^{-1} + \pi_1 \circ {A}_1^{-1} \circ \pi_1^*+\pi_2 \circ {A}_2^{-1} \circ \pi_2^*,
-\end{equation*} 
-where $^*$ stands for the adjoint operator and $R$, $A_1$, $A_2$ are the linear operators related to the inner products $r$, $a_1$ and $a_2$ respectively. 
-
-Under suitable assumptions, we prove that $B$ is indeed a  preconditioner for $A$, more precisely we have the following result
-\begin{theorem}{\cite[Theorem 2.2]{hiptmair2007nodal}} \label{th:ASP-lemma}
-Assume that there are some nonnegative constants $\beta_1$, $\beta_2$, $\gamma$ and $\eta$ such that
-\begin{itemize}
-\item[(i)] The continuity of $\pi_1$ and $\pi_2$ with respect to the graph norms:
-\begin{equation*}
-a\left(\pi_1 (w_1),\pi_1 (w_1)\right)^{1/2} \leq \beta_1 \left( a_1(w_1,w_1)^{1/2}+ a_2(w_1,w_1)^{1/2}\right),
-\end{equation*} 
-\begin{equation*}
-a\left(\pi_2 (w_2),\pi_2 (w_2)\right)^{1/2} \leq \beta_2 \left( a_1(w_2,w_2)^{1/2}+ a_2(w_2,w_2)^{1/2}\right), 
-\end{equation*} 
-for all $w_1 \in W_1$ and $w_2 \in W_2$;
-
-\item[(ii)]  The continuity of $r^{-1}$:
-\begin{equation*}
-a(v,v)^{1/2} \leq \gamma \,r(v,v)^{1/2},
-\end{equation*}
-for all $v \in V$;
-
-\item[(iii)] Existence of a stable decomposition of $V$: for each $v \in V$, there exist $\widetilde{v} \in V$, $w_1 \in W_1$ and $w_2 \in W_2$ such that 
-\begin{equation*}
-v=\widetilde{v}+\pi_1 w_1 + \pi_2 w_2,
-\end{equation*}
-with estimate 
-\begin{equation*}
-r(\widetilde{v},\widetilde{v}) + a_1(w_1,w_1) + a_2(w_2,w_2) \leq \eta \, a(v,v).
-\end{equation*} 
-\end{itemize}
-Then we have the following estimate for the {\em spectral condition number} of the preconditioned operator
-\begin{equation*}
-\kappa(BA) \leq \eta^2 (\beta_1^2+\beta_2^2).
-\end{equation*}
-\end{theorem}
-
-The above result make in evidence the central importance of stable regular decompositions on the construction of an efficient auxiliary space preconditioning. In this work, we focus on the discrete case and hence the regular decomposition of Theorem \ref{regular-decomposition-of-H(curl)} has to be adapted at the discrete level. As a first step we introduce in the next section the discrete spaces.
-
+%In this section we fix some notations and we recall some preliminary results which will be used in the paper. In details, in Subsection \ref{subsec:functional-spaces} after introducing the functional spaces we recall a theoretical result corresponds to so-called regular decomposition of a three dimensional vector filed, which will be fundamental for our study of the discrete curl-curl problem discussed in Section \ref{sec:asp}. Then we summarize in Subsection \ref{subsec:Auxiliary-Space-Preconditioning-Method} the essentials of the abstract theory of Auxiliary Space Preconditioning (ASP) method. The last subsection is devoted to IsoGeometric Analysis (IGA) with some relevant properties of IsoGeometric spaces.
+%
+%
+%    
+%\subsection{Functional Spaces: Notation and Results}\label{subsec:functional-spaces}
+%Throughout this paper we shell work with {\em Sobolev spaces} and recall here some standard notations. For a more detailed presentation we refer to \cite{adams2003sobolev,girault2012finite,monk2003finite}. For a bounded domain $\Omega \subset \mathbb{R}^3$, the Hilbert space $L^2(\Omega)$ denotes the {\em Lebesgue square-integrable functions} on $\Omega$ equipped with standard $L^2(\Omega)$ norm. Given a positive integer $s$, we denote by $H^s(\Omega)$ the Sobolev space of order $s$ on $\Omega$, namely the space of functions in $L^2(\Omega)$ with $s$th-order derivatives, in the sense of distributions, also in $L^2(\Omega)$ endowed with the standard norm $\|\cdot\|_{H^s(\Omega)}$. Note that, by definition we have $H^0(\Omega)=L^2(\Omega)$. For the correspond vectorial spaces we use the notations $\mathbb{L}^2(\Omega):=\left(L^2(\Omega)\right)^3$ and $\mathbb{H}^s(\Omega):=\left(H^s(\Omega)\right)^3$. However, we shall need also the following Hilbert spaces
+%\begin{equation*}
+%\bm{H}(\textbf{curl},\Omega)=\left\{ \bm{u} \in \mathbb{L}^2(\Omega),\: \, \textbf{curl}\,(\bm{u})\in \mathbb{L}^2(\Omega)\right\}, \; \bm{H}(\text{div},\Omega)=\left\{ \bm{v} \in \mathbb{L}^2(\Omega),\: \, \text{div}\,(\bm{v})\in L^2(\Omega)\right\},
+%\end{equation*}
+%equipped with the norms
+%\begin{equation*}
+%\|\bm{u}\|_{\bm{H}(\textbf{curl},\Omega)}^2=\|\bm{u}\|_{\mathbb{L}^2(\Omega)}^2 + \|\textbf{curl}\,(\bm{u})\|_{\mathbb{L}^2(\Omega)}^2, \; \|\bm{v}\|_{\bm{H}(div,\Omega)}^2=\|\bm{v}\|_{\mathbb{L}^2(\Omega)}^2 + \|\text{div}\,(\bm{v})\|_{L^2(\Omega)}^2,
+%\end{equation*}
+%respectively.
+%
+%We are now ready to provide regular decomposition of space $\bm{H}(\textbf{curl},\Omega)$. However, to keep the presentation focused we assume that {\em $\Omega$ is homotopy equivalent to a ball}. A consequence of this assumption is that the following DeRham complex 
+%\begin{align*}
+%    \begin{array}{ccccc}
+%   H^1(\Omega) & \xrightarrow{\quad \textbf{grad} \quad } & \bm{H}(\textbf{curl},\Omega) & \xrightarrow{\quad \textbf{curl} \quad } & \bm{H}(\text{div},\Omega)
+%  \end{array}
+%\end{align*}
+%is exact, meaning that $\textbf{grad} \left( H^1(\Omega)\right)=\text{ker}(\textbf{curl})$
+%
+%
+%The following theorem is essentially, for instance see \cite{pasciak2002overlapping,zhao2004analysis}.
+%
+%\begin{theorem}[Regular decomposition of $\mathbf{H}(\textbf{curl},\Omega)$]\label{regular-decomposition-of-H(curl)}
+%For each $\mathbf{u} \in \bm{H}(\textbf{curl},\Omega)$, there exist $\bm{\varphi} \in \mathbb{H}^1(\Omega)$ and $\phi \in H^1(\Omega)$ such that
+%\begin{itemize}
+%\item[(i)] $\bm{u}=\bm{\varphi}+ \textbf{grad}\, (\phi)$;
+%
+%%$\textbf{curl}\,(\bm{u})=\textbf{curl}\,(\bm{\varphi})$;
+%
+%\item[(ii)] $\|\bm{\varphi}\|_{\mathbb{H}^1(\Omega)} \leq C\|\textbf{curl}\,(\bm{u})\|_{\mathbb{L}^2(\Omega)}$;
+%
+%\item[(iii)] $\|\bm{\varphi}\|_{\mathbb{L}^2(\Omega)} \leq C \|\bm{u}\|_{\mathbb{L}^2(\Omega)}$,
+%\end{itemize}
+%where $C$ is a positive constant depending only on the shape of $\Omega$.
+%\end{theorem}
+%
+%\begin{remark}
+%From decomposition $(i)$, since $\textbf{grad}\, (\phi) \in \text{ker}\, (\textbf{curl})$, we deduce that $\textbf{curl}\,(\bm{u})=\textbf{curl}\,(\bm{\varphi})$.
+%\end{remark}
+%
+%\begin{remark}
+%In the general case in which $\Omega$ is simply a three-dimensional polyhedral domain, the result of the theorem can be generalized  as follows: For each $\bm{u} \in \bm{H}(\textbf{curl},\Omega)$, there exists $\bm{\varphi} \in \mathbb{H}^1(\Omega)$ such that $\textbf{curl}\,(\bm{u})=\textbf{curl}\,(\bm{\varphi})$ with estimates $(ii)-(iii)$. For the proof see \cite{kolev2009parallel}.
+%\end{remark}
+%
+%In Section \ref{sec:asp}, in Theorem \ref{thm:stable-Hitpmair-Xu-decomposition}, we will show a discrete version of Theorem \ref{regular-decomposition-of-H(curl)}.
+% 
+%\subsection{Auxiliary Space Preconditioning (ASP) Method}\label{subsec:Auxiliary-Space-Preconditioning-Method}
+%For completeness, we give in this subsection the main ingredients of the {\em ASP method}, for a general discussion of the method the reader is referred to \cite{chen2015auxiliary,hiptmair2006auxiliary,hiptmair2007nodal,kolev2008auxiliary,kolev2009parallel,nepomnyaschikh1991decomposition,xu1992iterative} and references therein. 
+%
+%Let $V$ be a Hilbert space and $a\,:\, V \times V \longrightarrow \mathbb{R}$ some inner product defined on $V$. The main ingredients of the method are {\em auxiliary spaces}, {\em transfer operators} and what is called the {\em smoother}. The auxiliary spaces are Hilbert spaces, say $W_1$ and $W_2$, equipped  with some inner products ${a}_1 \,:\, W_1 \times W_1 \longrightarrow \mathbb{R}$ and ${a}_2 \,:\, W_2 \times W_2 \longrightarrow  \mathbb{R}$. The transfer operators are linear operators $\pi_1\,:\, W_1 \longrightarrow V$ and $\pi_2 \,:\, W_1 \longrightarrow V$ transferring the auxiliary spaces to the original space $V$. The smoother is simply an inner product $r\,:\, V \times V \longrightarrow \mathbb{R}$ defined on $V$. With these considerations the ASP preconditioner is given by
+%\begin{equation*}\label{eq:ASP-preconditione}
+%B=R^{-1} + \pi_1 \circ {A}_1^{-1} \circ \pi_1^*+\pi_2 \circ {A}_2^{-1} \circ \pi_2^*,
+%\end{equation*} 
+%where $^*$ stands for the adjoint operator and $R$, $A_1$, $A_2$ are the linear operators related to the inner products $r$, $a_1$ and $a_2$ respectively. 
+%
+%Under suitable assumptions, we prove that $B$ is indeed a  preconditioner for $A$, more precisely we have the following result
+%\begin{theorem}{\cite[Theorem 2.2]{hiptmair2007nodal}} \label{th:ASP-lemma}
+%Assume that there are some nonnegative constants $\beta_1$, $\beta_2$, $\gamma$ and $\eta$ such that
+%\begin{itemize}
+%\item[(i)] The continuity of $\pi_1$ and $\pi_2$ with respect to the graph norms:
+%\begin{equation*}
+%a\left(\pi_1 (w_1),\pi_1 (w_1)\right)^{1/2} \leq \beta_1 \left( a_1(w_1,w_1)^{1/2}+ a_2(w_1,w_1)^{1/2}\right),
+%\end{equation*} 
+%\begin{equation*}
+%a\left(\pi_2 (w_2),\pi_2 (w_2)\right)^{1/2} \leq \beta_2 \left( a_1(w_2,w_2)^{1/2}+ a_2(w_2,w_2)^{1/2}\right), 
+%\end{equation*} 
+%for all $w_1 \in W_1$ and $w_2 \in W_2$;
+%
+%\item[(ii)]  The continuity of $r^{-1}$:
+%\begin{equation*}
+%a(v,v)^{1/2} \leq \gamma \,r(v,v)^{1/2},
+%\end{equation*}
+%for all $v \in V$;
+%
+%\item[(iii)] Existence of a stable decomposition of $V$: for each $v \in V$, there exist $\widetilde{v} \in V$, $w_1 \in W_1$ and $w_2 \in W_2$ such that 
+%\begin{equation*}
+%v=\widetilde{v}+\pi_1 w_1 + \pi_2 w_2,
+%\end{equation*}
+%with estimate 
+%\begin{equation*}
+%r(\widetilde{v},\widetilde{v}) + a_1(w_1,w_1) + a_2(w_2,w_2) \leq \eta \, a(v,v).
+%\end{equation*} 
+%\end{itemize}
+%Then we have the following estimate for the {\em spectral condition number} of the preconditioned operator
+%\begin{equation*}
+%\kappa(BA) \leq \eta^2 (\beta_1^2+\beta_2^2).
+%\end{equation*}
+%\end{theorem}
+%
+%The above result make in evidence the central importance of stable regular decompositions on the construction of an efficient auxiliary space preconditioning. In this work, we focus on the discrete case and hence the regular decomposition of Theorem \ref{regular-decomposition-of-H(curl)} has to be adapted at the discrete level. As a first step we introduce in the next section the discrete spaces.
+%
 \subsection{IsoGeometric Spaces}\label{subsec-IGA}
 In this section we introduce a discrete counterparts of functional spaces $L^2(\Omega)$, $\bm{H}(\textbf{curl},\Omega)$, $\bm{H}(\text{div},\Omega)$, this is done in the context of IsoGeometric Analysis (IGA) \cite{bazilevs2006isogeometric,buffa2011isogeometric,cottrell2009isogeometric,da2014mathematical,hughes2005isogeometric}. 
 
@@ -139,47 +141,43 @@ V_h(\textbf{grad},\Omega):=\bm{\mathcal{S}}^{p_1,p_2,p_3}_{\bm{\alpha}_1,\bm{\al
 \end{cases}
 \end{equation}
 where $h$ refers to the global mesh size, i.e $h=\max_{\substack{1 \leq j_i \leq N_i-1 \\ i=1,2,3}}h_{i,j_i}$. These discrete spaces enjoy the following property 
-\begin{theorem}{\cite[Theorem 5.3]{buffa2011isogeometric}}
-Let $l$ and $s$ be two integers such that $0\leq l \leq s \leq \underline{p}$ and $l \leq \underline{\alpha}$ where $\underline{p}=\min\{p_1,p_2,p_3\}$ and $\underline{\alpha}=\min_{i=1,2,3} \min \bm{\alpha}_i$. Then the following estimates
-\begin{equation*}
-\|\varphi - \Pi_h^{\textbf{grad}}\varphi\|_{H^l(\Omega)} \leq C h^{s-l}\|\varphi\|_{H^s(\Omega)}, \quad \varphi \in V_h(\textbf{grad},\Omega) \cap H^s(\Omega),
-\end{equation*}
-\begin{equation*}
-\|\bm{u} - \Pi_h^{\textbf{curl}}\bm{u}\|_{\mathbb{H}^l(\Omega)} \leq C h^{s-l}\|\bm{u}\|_{\mathbb{H}^s(\Omega)}, \quad \bm{u} \in \bm{V}_h(\textbf{curl},\Omega) \cap \mathbb{H}^s(\Omega),
-\end{equation*}
-hold true, where $C$ is a positive constant which is independent   of $h$.
-\end{theorem}
+%\begin{theorem}{\cite[Theorem 5.3]{buffa2011isogeometric}}
+%Let $l$ and $s$ be two integers such that $0\leq l \leq s \leq \underline{p}$ and $l \leq \underline{\alpha}$ where $\underline{p}=\min\{p_1,p_2,p_3\}$ and $\underline{\alpha}=\min_{i=1,2,3} \min \bm{\alpha}_i$. Then the following estimates
+%\begin{equation*}
+%\|\varphi - \Pi_h^{\textbf{grad}}\varphi\|_{H^l(\Omega)} \leq C h^{s-l}\|\varphi\|_{H^s(\Omega)}, \quad \varphi \in V_h(\textbf{grad},\Omega) \cap H^s(\Omega),
+%\end{equation*}
+%\begin{equation*}
+%\|\bm{u} - \Pi_h^{\textbf{curl}}\bm{u}\|_{\mathbb{H}^l(\Omega)} \leq C h^{s-l}\|\bm{u}\|_{\mathbb{H}^s(\Omega)}, \quad \bm{u} \in \bm{V}_h(\textbf{curl},\Omega) \cap \mathbb{H}^s(\Omega),
+%\end{equation*}
+%hold true, where $C$ is a positive constant which is independent   of $h$.
+%\end{theorem}
+%
+%Now {\em DeRham diagrams} can be constructed. Among the important properties, one can build specific projectors, what is called {\em quasi interpolation operators}, that make these diagrams commute. We shall start with the univariate case, then extend it by tensor product. For this purpose, we take any locally stable projector $\mathcal{P}_h \,:\, H^1(0,1) \longrightarrow \mathcal{S}^p_{\bm{\alpha}}$, for instance see \cite{schumaker2007spline} for theoretical studies, then we define the corresponding 
+%histopolation operator by 
+%\begin{equation*}
+%\mathcal{Q}_h \phi = \frac{d}{d x} \mathcal{P}_h \left( \int_0^x \phi(t) dt \right), \quad \phi \in L^2(0,1). 
+%\end{equation*} 
+%Following the notations above, the quasi interpolation operators are given by  
+%\begin{equation*}
+%\Pi^{\textbf{grad}}_h=\mathcal{P}_h \otimes \mathcal{P}_h \otimes \mathcal{P}_h,
+%\end{equation*}
+%\begin{equation*}
+%\Pi^{\textbf{curl}}_h=\left(\mathcal{Q}_h \otimes \mathcal{P}_h \otimes \mathcal{P}_h,\mathcal{P}_h \otimes \mathcal{Q}_h \otimes \mathcal{P}_h,\mathcal{P}_h \otimes \mathcal{P}_h \otimes \mathcal{Q}_h\right),
+%\end{equation*}
+%and
+%\begin{equation*}
+%\Pi^{div}_h=\left(\mathcal{P}_h \otimes \mathcal{Q}_h \otimes \mathcal{Q}_h,\mathcal{Q}_h \otimes \mathcal{P}_h \otimes \mathcal{Q}_h,\mathcal{Q}_h \otimes \mathcal{Q}_h \otimes \mathcal{P}_h\right).
+%\end{equation*}
 
-Now {\em DeRham diagrams} can be constructed. Among the important properties, one can build specific projectors, what is called {\em quasi interpolation operators}, that make these diagrams commute. We shall start with the univariate case, then extend it by tensor product. For this purpose, we take any locally stable projector $\mathcal{P}_h \,:\, H^1(0,1) \longrightarrow \mathcal{S}^p_{\bm{\alpha}}$, for instance see \cite{schumaker2007spline} for theoretical studies, then we define the corresponding 
-histopolation operator by 
-\begin{equation*}
-\mathcal{Q}_h \phi = \frac{d}{d x} \mathcal{P}_h \left( \int_0^x \phi(t) dt \right), \quad \phi \in L^2(0,1). 
-\end{equation*} 
-Following the notations above, the quasi interpolation operators are given by  
-\begin{equation*}
-\Pi^{\textbf{grad}}_h=\mathcal{P}_h \otimes \mathcal{P}_h \otimes \mathcal{P}_h,
-\end{equation*}
-\begin{equation*}
-\Pi^{\textbf{curl}}_h=\left(\mathcal{Q}_h \otimes \mathcal{P}_h \otimes \mathcal{P}_h,\mathcal{P}_h \otimes \mathcal{Q}_h \otimes \mathcal{P}_h,\mathcal{P}_h \otimes \mathcal{P}_h \otimes \mathcal{Q}_h\right),
-\end{equation*}
-and
-\begin{equation*}
-\Pi^{div}_h=\left(\mathcal{P}_h \otimes \mathcal{Q}_h \otimes \mathcal{Q}_h,\mathcal{Q}_h \otimes \mathcal{P}_h \otimes \mathcal{Q}_h,\mathcal{Q}_h \otimes \mathcal{Q}_h \otimes \mathcal{P}_h\right).
-\end{equation*}
-
-Finally, we shall need the following result
-\begin{proposition}{\cite[Proposition 4.5]{buffa2011isogeometric}}
-The following diagram
-\begin{align}\label{pr-eq:DeRham-diagram}
-    \begin{array}{ccccc}
-   H^1(\Omega) & \xrightarrow{\quad \textbf{grad} \quad } & \bm{H}(\textbf{curl},\Omega) & \xrightarrow{\quad \textbf{curl} \quad } & \bm{H}(\text{div},\Omega)\\
-  \Pi_h^{\textbf{grad}} \Bigg\downarrow &  & \Pi_h^{\textbf{curl}} \Bigg\downarrow &  & \Pi_h^{\text{div}} \Bigg\downarrow \\
-  V_h(\textbf{grad},\Omega) & \xrightarrow{\quad \textbf{grad} \quad } & \bm{V}_h(\textbf{curl},\Omega) & \xrightarrow{\quad \textbf{curl} \quad } & \bm{V}_h(\text{div},\Omega)
-  \end{array}
-\end{align}
-commutes and is exact.
-\end{proposition}
-
-
-
-
+%Finally, we shall need the following result
+%\begin{proposition}{\cite[Proposition 4.5]{buffa2011isogeometric}}
+%The following diagram
+%\begin{align}\label{pr-eq:DeRham-diagram}
+%    \begin{array}{ccccc}
+%   H^1(\Omega) & \xrightarrow{\quad \textbf{grad} \quad } & \bm{H}(\textbf{curl},\Omega) & \xrightarrow{\quad \textbf{curl} \quad } & \bm{H}(\text{div},\Omega)\\
+%  \Pi_h^{\textbf{grad}} \Bigg\downarrow &  & \Pi_h^{\textbf{curl}} \Bigg\downarrow &  & \Pi_h^{\text{div}} \Bigg\downarrow \\
+%  V_h(\textbf{grad},\Omega) & \xrightarrow{\quad \textbf{grad} \quad } & \bm{V}_h(\textbf{curl},\Omega) & \xrightarrow{\quad \textbf{curl} \quad } & \bm{V}_h(\text{div},\Omega)
+%  \end{array}
+%\end{align}
+%commutes and is exact.
+%\end{proposition}
