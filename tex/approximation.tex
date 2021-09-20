@@ -63,11 +63,11 @@
 %\end{theorem}
 \subsection{Splines Histopolation}
 In this subsection, we present the histopolation problem and its matrix form.
-In opposition to the interpolation problem, where we preserve the values of a function on a given nodes, another interesting way to approximate a function,  is to preserve the integrals between given points, rather than the value of the function on these points. Given the set of interpolations points $X:=\{ x_0, \cdots,x_{n+1} \}$ and a continuous function $f$, the histopolation problem writes 
+In opposition to the interpolation problem, where we preserve the values of a function on a given nodes, another interesting way to approximate a function,  is to preserve the integrals between given points, rather than the value of the function on these points. Given the set of interpolations points $X:=\{ x_0, \cdots,x_{n} \}$ and a continuous function $f$, the histopolation problem writes 
 \begin{definition}[Spline histopolation]
-  Find a spline $s := \sum\limits_{j=0}^{n} c_j N_j^p \in \mathcal{S}_p(T)$ such that
+  Find a spline $s := \sum\limits_{j=1}^{n} c_j N_j^p \in \mathcal{S}_p(T)$ such that
   \begin{align}
-    \int_{x_i}^{x_{i+1}} s ~dx = \int_{x_i}^{x_{i+1}} f ~dx \quad \quad 0 \leq i \leq n
+    \int_{x_i}^{x_{i+1}} s ~dx = \int_{x_i}^{x_{i+1}} f ~dx \quad \quad 1 \leq i \leq n
 %    \label{}
   \end{align}
 \end{definition}
@@ -76,18 +76,18 @@ In a matrix form, the Spline histopolation problem writes $ H c = y $ where $H$ 
 \begin{align*}
   c =  
   \begin{bmatrix}
-    c_0\\
     c_1\\
+    c_2\\
     \vdots    \\ 
     c_n\\
   \end{bmatrix}
   \quad
   H = 
   \begin{bmatrix}
-    \int_{x_0}^{x_{1}}N_0^p ~dx   & \ldots & \int_{x_0}^{x_{1}}N_n^p ~dx   \\
-    \int_{x_1}^{x_{2}}N_0^p ~dx   & \ldots & \int_{x_1}^{x_{2}}N_n^p ~dx   \\
+    \int_{x_0}^{x_{1}}N_1^p ~dx   & \ldots & \int_{x_0}^{x_{1}}N_n^p ~dx   \\
+    \int_{x_1}^{x_{2}}N_1^p ~dx   & \ldots & \int_{x_1}^{x_{2}}N_n^p ~dx   \\
     \vdots                        & \ldots &                        \vdots \\
-    \int_{x_n}^{x_{n+1}}N_0^p ~dx & \ldots & \int_{x_n}^{x_{n+1}}N_n^p ~dx \\
+    \int_{x_n}^{x_{n+1}}N_1^p ~dx & \ldots & \int_{x_n}^{x_{n+1}}N_n^p ~dx \\
   \end{bmatrix}
   \quad
   y =  
@@ -162,7 +162,7 @@ hence,
 %%  \label{}
 %\end{lemma}
 \noindent
-A special case, which is of interest for our Auxiliary Space Preconditioning method, is when the function lives in $\mathcal{S}_p(T)$ and the histopolation is done on $\mathcal{S}_{p-1}(T)$ using M-Splines. In general this gives a singular problem, but when using Dirichlet Homogeneous boundary conditions, the dimension of both spaces are equal, after removing the interpolating degrees of freedom. 
+A special case, which is of interest for our Auxiliary Space Preconditioning method, is when the function lives in $\mathcal{S}_p(T)$ and the histopolation is done on $\mathcal{S}_{p-1}(T)$ using M-Splines. More precisely, we are interested in the case where Homogeneous Dirichlet boundary conditions are imposed and the interpolating degrees of freedom are removed. 
 \noindent
 Let $u := \sum\limits_{1 \le j \le n-1} u_j \Njone$, we have
 \begin{align}
@@ -207,12 +207,12 @@ which can be written in a matrix form as
 \end{align*}
 Finaly, we get
 \begin{align}
-  U^\star = H_{M}^{-1} H_{B} U  
+  U^\star = \left( H^{M} \right)^{-1} H^{B} U  
 %  \label{}
 \end{align}
 with
 \begin{align}
-  H_{M} &:= 
+  H^{M} &:= 
   \begin{bmatrix}
     \int_{x_0}^{x_{1}}M_1^{p-1} ~dx   & \ldots & \int_{x_0}^{x_{1}}M_{n-1}^{p-1} ~dx   \\
     \int_{x_1}^{x_{2}}M_1^{p-1} ~dx   & \ldots & \int_{x_1}^{x_{2}}M_{n-1}^{p-1} ~dx   \\
@@ -220,12 +220,12 @@ with
     \int_{x_n}^{x_{n+1}}M_1^{p-1} ~dx & \ldots & \int_{x_n}^{x_{n+1}}M_{n-1}^{p-1} ~dx \\
   \end{bmatrix}
   \\
-  H_{B} &:= 
+  H^{B} &:= 
   \begin{bmatrix}
     \int_{x_0}^{x_{1}}N_1^p ~dx   & \ldots & \int_{x_0}^{x_{1}}N_{n-1}^p ~dx   \\
     \int_{x_1}^{x_{2}}N_1^p ~dx   & \ldots & \int_{x_1}^{x_{2}}N_{n-1}^p ~dx   \\
     \vdots                        & \ldots &                        \vdots \\
     \int_{x_n}^{x_{n+1}}N_1^p ~dx & \ldots & \int_{x_n}^{x_{n+1}}N_{n-1}^p ~dx \\
   \end{bmatrix}
-%  \label{}
+  \label{eq:histopolation-h10}
 \end{align}

@@ -11,7 +11,7 @@
 
     $k \gets 0$\;
     \While{$k \leq \nu_{\ASP}$ \textbf{and} not convergence}{
-      $u_k \gets \mbox{\texttt{smoother}}_1(\mathcal{A}^\tau,b,u_k,\nu_1)$ \tcp*{Apply Gauss-Seidel smoother}  
+      $u_k \gets \mbox{\texttt{gauss\_seidel}}(\mathcal{A}^\tau,b,u_k,\nu_1)$ \tcp*{Apply Gauss-Seidel smoother}  
       $d_k \gets b - \mathcal{A}^\tau u_k$      \tcp*{Compute the defect}
       $u_c \gets \mathcal{B}^\tau d_k$          \tcp*{ASP correction}
       $u_k \gets u_k + u_c$      \tcp*{Update the solution}
@@ -196,14 +196,22 @@ The discrete derivatives in 3D are given by
 The actual implementation is based on a matrix form, but we should avoid it and implement these operators as functions. This will reduce the memory usage.  
 \end{remark}
 }
-\subsection{The Histopolation Operator}
-In the 1D case, the DeRham sequence involves two spaces $V_0 := \Vgrad$ and $V_1 := \Ltwo$. We are interested in the restriction of the histopolation operator to functions in $V_0$. We consider a function $u_h \in V_0$ that is expanded as $u_h := \sum\limits_{1 \le j \le n_{V_0}} u_j \Njone$. 
-
-Let us first define the histopolation matrix form $\mathcal{H}$ as
+%\subsection{The Histopolation Operator}
+%In the 1D case, the DeRham sequence involves two spaces $V_0 := \Vgrad$ and $V_1 := \Ltwo$. We are interested in the restriction of the histopolation operator to functions in $V_0$. We consider a function $u_h \in V_0$ that is expanded as $u_h := \sum\limits_{1 \le j \le n_{V_0}} u_j \Njone$. 
+%
+%Let us first define the histopolation matrix form $\mathcal{H}$ as
 
 \subsection{The $\Picurl$ Operator}
-\todo{TODO}
-
+Let us define the following 1D matrices 
+\begin{align}
+  \begin{cases}
+    \mathcal{H}_1 &= \left( H^{M}_1 \right)^{-1} H^{B}_1 \\ 
+    \mathcal{H}_2 &= \left( H^{M}_2 \right)^{-1} H^{B}_2 \\ 
+    \mathcal{H}_3 &= \left( H^{M}_3 \right)^{-1} H^{B}_3 
+  \end{cases}
+%  \label{}
+\end{align}
+where $H^{M}_k$ and  $ H^{B}_k$ for $k \in \{1,2,3\}$ are defined for each direction $k$ using \ref{eq:histopolation-h10}.
 In the 2D case, the $\Picurl$ is defined as 
 \begin{align}
   P_h^{\textbf{curl}} &=
@@ -214,7 +222,6 @@ In the 2D case, the $\Picurl$ is defined as
   \end{bmatrix}
 %  \label{}
 \end{align}
-
 In the 3D case, the $\Picurl$ is defined as 
 \begin{align}
     \Picurl  & = 
@@ -227,9 +234,89 @@ In the 3D case, the $\Picurl$ is defined as
     \end{bmatrix}
   \label{eq:commuting-projectors-splines-3d}
 \end{align}
+\todo{
+\begin{remark}
+  In the actual implementation, we compute the matrices $\left( H^{M}_k \right)^{-1} H^{B}_k, k \in \{1,2,3\}$ which are represented as dense matrices. It would be better to apply the product then solve for $\left( H^{M}_k \right)^{-1}$ using band solvers from \LAPACK, see \texttt{DGBTRS} and \texttt{DGBTRF}. 
+\end{remark}
+}
+\newpage
+\subsection{The symmetric Gauss-Seidel method}
+In Algo. \ref{algo:gauss-seidel-symmetric}, we recall the symmetric Gauss-Seidel method. In this algorithm, we use our \texttt{spsolve} driver, which has different implementations depending on the type of the matrix $\mathcal{A}$. These implementation will be given in the next subsection.
 
+% ...
+\begin{minipage}{\textwidth}
+  \begin{algorithm}[H]
+  \DontPrintSemicolon
+  \SetAlgoLined
+  \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+  \Input{$\mathcal{A}, x, b, \nu_1$}
+  \Output{$x$}
+  \BlankLine
 
-\subsection{Triangular solver and the symmetric Gauss-Seidel method}
+    \For{$i \gets 1$ \textbf{to} $\nu_1$} {
+      $x \gets x + \texttt{spsolve}(\mathcal{A}, b - \mathcal{A} x, \texttt{lower}=\texttt{True})$ \; 
+    }
+    \For{$i \gets 1$ \textbf{to} $\nu_1$} {
+      $x \gets x + \texttt{spsolve}(\mathcal{A}, b - \mathcal{A} x, \texttt{lower}=\texttt{False})$ \; 
+    }
+
+  \caption{\texttt{gauss\_seidel}: Symmetric Gauss Seidel solver}
+  \label{algo:gauss-seidel-symmetric}
+  \end{algorithm} 
+\end{minipage}
+% ...
+
+\subsubsection*{2D case}
+We consider in the following a block matrix 
+%
+\begin{equation} %\label{eq:matr_A_2d}
+\mathcal{A} =\begin{bmatrix}
+ A_{11} & A_{12}  \\
+ A_{21} & A_{22} 
+\end{bmatrix}.
+\end{equation}
+%
+
+% ...
+\begin{minipage}{0.5\textwidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{$\mathcal{A}, b$}
+\Output{$x$}
+\BlankLine
+
+  $b_1, b_2 \gets \texttt{unfold}(b)$ \; 
+  $x_1 \gets \texttt{spsolve}(A_{11}, b_1, \texttt{lower}=\texttt{True})$ \; 
+  $\tilde{b}_2 \gets b_2 - A_{21} x_1$ \;        
+  $x_2 \gets \texttt{spsolve}(A_{22}, \tilde{b}_2, \texttt{lower}=\texttt{True})$ \;
+  $x \gets \texttt{fold}(x_1, x_2)$ \; 
+
+\caption{\texttt{spsolve}: Lower triangular solver for $2 \times 2$ block matrix}
+\end{algorithm} 
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{$\mathcal{A}, b$}
+\Output{$x$}
+\BlankLine
+
+  $b_1, b_2 \gets \texttt{unfold}(b)$ \; 
+  $x_2 \gets \texttt{spsolve}(A_{22}, b_2, \texttt{lower}=\texttt{False})$ \;            
+  $\tilde{b}_1 \gets b_1 - A_{12} x_2$ \;
+  $x_1 \gets \texttt{spsolve}(A_{11}, \tilde{b}_1, \texttt{lower}=\texttt{False})$ \;
+  $x \gets \texttt{fold}(x_1, x_2)$ \; 
+
+\caption{\texttt{spsolve}: Upper triangular solver for $2 \times 2$ block matrix}
+\end{algorithm} 
+\end{minipage}
+% ...
+
+\subsubsection*{3D case}
 We consider in the following a block matrix 
 %
 \begin{equation} %\label{eq:matr_A_2d}
@@ -242,26 +329,7 @@ We consider in the following a block matrix
 %
 
 % ...
-\begin{algorithm}[H]
-\DontPrintSemicolon
-\SetAlgoLined
-\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-\Input{$\mathcal{A}, x, b, \nu_1$}
-\Output{$x$}
-\BlankLine
-
-  \For{$i \gets 1$ \textbf{to} $\nu_1$} {
-    $x \gets x + \texttt{spsolve}(\mathcal{A}, b - \mathcal{A} x, \texttt{lower}=\texttt{True})$ \; 
-  }
-  \For{$i \gets 1$ \textbf{to} $\nu_1$} {
-    $x \gets x + \texttt{spsolve}(\mathcal{A}, b - \mathcal{A} x, \texttt{lower}=\texttt{False})$ \; 
-  }
-
-\caption{\texttt{gauss\_seidel}: Symmetric Gauss Seidel solver}
-\end{algorithm} 
-% ...
-
-% ...
+\begin{minipage}{0.5\textwidth}
 \begin{algorithm}[H]
 \DontPrintSemicolon
 \SetAlgoLined
@@ -271,16 +339,17 @@ We consider in the following a block matrix
 \BlankLine
 
   $b_1, b_2, b_3 \gets \texttt{unfold}(b)$ \; 
-  $x_1 \gets \texttt{spsolve}(A_{11}, b_1, \texttt{lower}=\texttt{True})$                                    \tcp*{Comment}
-  $x_2 \gets \texttt{spsolve}(A_{22}, b_2 - A_{21} x_1, \texttt{lower}=\texttt{True})$                       \tcp*{Comment}
-  $x_3 \gets \texttt{spsolve}(A_{33}, b_3 - A_{31} x_1 - A_{32} x_2, \texttt{lower}=\texttt{True})$          \tcp*{Comment}
+  $x_1 \gets \texttt{spsolve}(A_{11}, b_1, \texttt{lower}=\texttt{True})$  \;                        
+  $\tilde{b}_2 \gets b_2 - A_{21} x_1$ \;            
+  $x_2 \gets \texttt{spsolve}(A_{22}, \tilde{b}_2, \texttt{lower}=\texttt{True})$ \;            
+  $\tilde{b}_3 \gets b_3 - A_{31} x_1 - A_{32} x_2$ \;
+  $x_3 \gets \texttt{spsolve}(A_{33}, \tilde{b}_3, \texttt{lower}=\texttt{True})$ \;
   $x \gets \texttt{fold}(x_1, x_2, x_3)$ \; 
 
-\caption{\texttt{spsolve}: Triangular solver for lower block matrix}
+\caption{\texttt{spsolve}: Lower triangular solver for $3 \times 3$ block matrix}
 \end{algorithm} 
-% ...
-
-% ...
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
 \begin{algorithm}[H]
 \DontPrintSemicolon
 \SetAlgoLined
@@ -290,23 +359,122 @@ We consider in the following a block matrix
 \BlankLine
 
   $b_1, b_2, b_3 \gets \texttt{unfold}(b)$ \; 
-  $x_3 \gets \texttt{spsolve}(A_{33}, b_3, \texttt{lower}=\texttt{False})$                                    \tcp*{Comment}
-  $x_2 \gets \texttt{spsolve}(A_{22}, b_2 - A_{23} x_3, \texttt{lower}=\texttt{False})$                       \tcp*{Comment}
-  $x_1 \gets \texttt{spsolve}(A_{11}, b_1 - A_{12} x_2 - A_{13} x_3, \texttt{lower}=\texttt{False})$          \tcp*{Comment}
+  $x_3 \gets \texttt{spsolve}(A_{33}, b_3, \texttt{lower}=\texttt{False})$ \;                        
+  $\tilde{b}_2 \gets b_2 - A_{23} x_3$ \;            
+  $x_2 \gets \texttt{spsolve}(A_{22}, \tilde{b}_2, \texttt{lower}=\texttt{False})$ \;            
+  $\tilde{b}_1 \gets b_1 - A_{12} x_2 - A_{13} x_3$ \;
+  $x_1 \gets \texttt{spsolve}(A_{11}, \tilde{b}_1, \texttt{lower}=\texttt{False})$ \;
   $x \gets \texttt{fold}(x_1, x_2, x_3)$ \; 
 
-\caption{\texttt{spsolve}: Triangular solver for upper block matrix}
+\caption{\texttt{spsolve}: Upper triangular solver for $3 \times 3$ block matrix}
 \end{algorithm} 
+\end{minipage}
 % ...
 
+\subsection{Triangular solvers}
+In this part, we provide different implementations for the upper and lower triangular solver that are used in our method. We refer to our driver as \texttt{spsolve}.
 Since the diagonal block matrices can be either a Kronecker product of 3 matrices or the sum a Kronecker product of 3 matrices, we can then derive efficient matrix-free implementation as described in the following algorithms.
 
+%% ...
+%\begin{minipage}{\textwidth}
+%\begin{algorithm}[H]
+%\DontPrintSemicolon
+%\SetAlgoLined
+%\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+%\Input{$\mathcal{A} = A_1 \otimes A_2 \otimes A_3, b$}
+%\Output{$x$}
+%\BlankLine
+%
+%  \For{$i_1 \gets 1$ \textbf{to} $n_1$} {
+%    \For{$i_2 \gets 1$ \textbf{to} $n_2$} {
+%      \For{$i_3 \gets 1$ \textbf{to} $n_3$} {
+%        $i \gets \texttt{multi\_index}(i_1, i_2, i_3)$ \; 
+%        $r \gets 0$ \; 
+%        $a_d \gets 1$ \; 
+%
+%        \For{$k_1 \gets A_1.\texttt{ptr}[i_1]$ \textbf{to} $A_1.\texttt{ptr}[i_1+1] - 1$} {
+%          $j_1 \gets A_1.\texttt{indices}[k_1]$ \; 
+%          $a_1 \gets A_1.\texttt{data}[k_1]$ \; 
+%          \For{$k_2 \gets A_2.\texttt{ptr}[i_2]$ \textbf{to} $A_2.\texttt{ptr}[i_2+1] - 1$} {
+%            $j_2 \gets A_2.\texttt{indices}[k_2]$ \; 
+%            $a_2 \gets A_2.\texttt{data}[k_2]$ \; 
+%            \For{$k_3 \gets A_3.\texttt{ptr}[i_3]$ \textbf{to} $A_3.\texttt{ptr}[i_3+1] - 1$} {
+%              $j_3 \gets A_3.\texttt{indices}[k_3]$ \; 
+%              $a_3 \gets A_3.\texttt{data}[k_3]$ \; 
+%              $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
+%              \uIf{$i < j$}{
+%                $r \gets r + a_1 a_2 a_3 x[j]$ \; 
+%              }
+%              \Else{
+%                $a_d \gets a_1 a_2 a_3$ \; 
+%              }
+%            }
+%          }
+%        }
+%        $x[i] \gets \frac{1}{a_d}(b[i] - r)$ \; 
+%      }
+%    }
+%  }
+%
+%  \caption{\texttt{spsolve}: Lower triangular solver for Kronecker product [CSR] matrix.}
+%\end{algorithm} 
+%\end{minipage}
+%% ...
+%
+%% ...
+%\begin{minipage}{\textwidth}
+%\begin{algorithm}[H]
+%\DontPrintSemicolon
+%\SetAlgoLined
+%\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+%\Input{$\mathcal{A} = A_1 \otimes A_2 \otimes A_3, b$}
+%\Output{$x$}
+%\BlankLine
+%
+%  \For{$i_1 \gets 1$ \textbf{to} $n_1$} {
+%    \For{$i_2 \gets 1$ \textbf{to} $n_2$} {
+%      \For{$i_3 \gets 1$ \textbf{to} $n_3$} {
+%        $i \gets \texttt{multi\_index}(i_1, i_2, i_3)$ \; 
+%        $r \gets 0$ \; 
+%        $a_d \gets 1$ \; 
+%
+%        \For{$k_1 \gets A_1.\texttt{ptr}[i_1]$ \textbf{to} $A_1.\texttt{ptr}[i_1+1] - 1$} {
+%          $j_1 \gets A_1.\texttt{indices}[k_1]$ \; 
+%          $a_1 \gets A_1.\texttt{data}[k_1]$ \; 
+%          \For{$k_2 \gets A_2.\texttt{ptr}[i_2]$ \textbf{to} $A_2.\texttt{ptr}[i_2+1] - 1$} {
+%            $j_2 \gets A_2.\texttt{indices}[k_2]$ \; 
+%            $a_2 \gets A_2.\texttt{data}[k_2]$ \; 
+%            \For{$k_3 \gets A_3.\texttt{ptr}[i_3]$ \textbf{to} $A_3.\texttt{ptr}[i_3+1] - 1$} {
+%              $j_3 \gets A_3.\texttt{indices}[k_3]$ \; 
+%              $a_3 \gets A_3.\texttt{data}[k_3]$ \; 
+%              $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
+%              \If{$i \ge j$}{
+%                $r \gets r + a_1 a_2 a_3 x[j]$ \; 
+%              }
+%              \If{$i = j$}{
+%                $a_d \gets a_1 a_2 a_3$ \; 
+%              }
+%            }
+%          }
+%        }
+%        $x[i] \gets \frac{1}{a_d}(b[i] - r)$ \; 
+%      }
+%    }
+%  }
+%
+%  \caption{\texttt{spsolve}: Upper triangular solver for Kronecker product [CSR] matrix.}
+%\end{algorithm} 
+%\end{minipage}
+%% ...
+
 % ...
-\begin{algorithm}[ht]
+\begin{minipage}{\textwidth}
+\begin{algorithm}[H]
+\scriptsize
 \DontPrintSemicolon
 \SetAlgoLined
 \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-\Input{$\mathcal{A} = A_1 \otimes A_2 \otimes A_3, b$}
+\Input{$\mathcal{A} = \alpha A_1 \otimes A_2 \otimes A_3 + \beta B_1 \otimes B_2 \otimes B_3 + \gamma C_1 \otimes C_2 \otimes C_3 , b$}
 \Output{$x$}
 \BlankLine
 
@@ -314,9 +482,9 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
     \For{$i_2 \gets 1$ \textbf{to} $n_2$} {
       \For{$i_3 \gets 1$ \textbf{to} $n_3$} {
         $i \gets \texttt{multi\_index}(i_1, i_2, i_3)$ \; 
-        $r \gets 0$ \; 
-        $a_d \gets 1$ \; 
 
+        $y_i \gets 0$ \; 
+        $a_d \gets 1$ \; 
         \For{$k_1 \gets A_1.\texttt{ptr}[i_1]$ \textbf{to} $A_1.\texttt{ptr}[i_1+1] - 1$} {
           $j_1 \gets A_1.\texttt{indices}[k_1]$ \; 
           $a_1 \gets A_1.\texttt{data}[k_1]$ \; 
@@ -328,7 +496,7 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
               $a_3 \gets A_3.\texttt{data}[k_3]$ \; 
               $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
               \uIf{$i < j$}{
-                $r \gets r + a_1 a_2 a_3 x[j]$ \; 
+                $y_i \gets y_i + a_1 a_2 a_3 x[j]$ \; 
               }
               \Else{
                 $a_d \gets a_1 a_2 a_3$ \; 
@@ -336,22 +504,70 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
             }
           }
         }
-        $x[i] \gets \frac{1}{a_d}(b[i] - r)$ \; 
+
+        $z_i \gets 0$ \; 
+        $b_d \gets 1$ \; 
+        \For{$k_1 \gets B_1.\texttt{ptr}[i_1]$ \textbf{to} $B_1.\texttt{ptr}[i_1+1] - 1$} {
+          $j_1 \gets B_1.\texttt{indices}[k_1]$ \; 
+          $a_1 \gets B_1.\texttt{data}[k_1]$ \; 
+          \For{$k_2 \gets B_2.\texttt{ptr}[i_2]$ \textbf{to} $B_2.\texttt{ptr}[i_2+1] - 1$} {
+            $j_2 \gets B_2.\texttt{indices}[k_2]$ \; 
+            $a_2 \gets B_2.\texttt{data}[k_2]$ \; 
+            \For{$k_3 \gets B_3.\texttt{ptr}[i_3]$ \textbf{to} $B_3.\texttt{ptr}[i_3+1] - 1$} {
+              $j_3 \gets B_3.\texttt{indices}[k_3]$ \; 
+              $a_3 \gets B_3.\texttt{data}[k_3]$ \; 
+              $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
+              \uIf{$i < j$}{
+                $z_i \gets z_i + a_1 a_2 a_3 x[j]$ \; 
+              }
+              \Else{
+                $b_d \gets a_1 a_2 a_3$ \; 
+              }
+            }
+          }
+        }
+
+        $w_i \gets 0$ \; 
+        $c_d \gets 1$ \; 
+        \For{$k_1 \gets C_1.\texttt{ptr}[i_1]$ \textbf{to} $C_1.\texttt{ptr}[i_1+1] - 1$} {
+          $j_1 \gets C_1.\texttt{indices}[k_1]$ \; 
+          $a_1 \gets C_1.\texttt{data}[k_1]$ \; 
+          \For{$k_2 \gets C_2.\texttt{ptr}[i_2]$ \textbf{to} $C_2.\texttt{ptr}[i_2+1] - 1$} {
+            $j_2 \gets C_2.\texttt{indices}[k_2]$ \; 
+            $a_2 \gets C_2.\texttt{data}[k_2]$ \; 
+            \For{$k_3 \gets C_3.\texttt{ptr}[i_3]$ \textbf{to} $C_3.\texttt{ptr}[i_3+1] - 1$} {
+              $j_3 \gets C_3.\texttt{indices}[k_3]$ \; 
+              $a_3 \gets C_3.\texttt{data}[k_3]$ \; 
+              $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
+              \uIf{$i < j$}{
+                $w_i \gets w_i + a_1 a_2 a_3 x[j]$ \; 
+              }
+              \Else{
+                $c_d \gets a_1 a_2 a_3$ \; 
+              }
+            }
+          }
+        }
+
+        $x[i] \gets \frac{1}{\alpha a_d + \beta b_d \gamma c_d}(b[i] - \alpha y_i - \beta z_i - \gamma w_i)$ \; 
+
       }
     }
   }
 
-\caption{\texttt{spsolve}: Triangular solver for lower Kronecker product matrix, for CSR storage.}
+\caption{\texttt{spsolve}: Lower triangular solver for sum of Kronecker product [CSR] matrices.}
 \end{algorithm} 
+\end{minipage}
 % ...
 
-
 % ...
-\begin{algorithm}[ht]
+\begin{minipage}{\textwidth}
+\begin{algorithm}[H]
+\scriptsize
 \DontPrintSemicolon
 \SetAlgoLined
 \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-\Input{$\mathcal{A} = A_1 \otimes A_2 \otimes A_3, b$}
+\Input{$\mathcal{A} = \alpha A_1 \otimes A_2 \otimes A_3 + \beta B_1 \otimes B_2 \otimes B_3 + \gamma C_1 \otimes C_2 \otimes C_3 , b$}
 \Output{$x$}
 \BlankLine
 
@@ -359,9 +575,9 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
     \For{$i_2 \gets 1$ \textbf{to} $n_2$} {
       \For{$i_3 \gets 1$ \textbf{to} $n_3$} {
         $i \gets \texttt{multi\_index}(i_1, i_2, i_3)$ \; 
-        $r \gets 0$ \; 
-        $a_d \gets 1$ \; 
 
+        $y_i \gets 0$ \; 
+        $a_d \gets 1$ \; 
         \For{$k_1 \gets A_1.\texttt{ptr}[i_1]$ \textbf{to} $A_1.\texttt{ptr}[i_1+1] - 1$} {
           $j_1 \gets A_1.\texttt{indices}[k_1]$ \; 
           $a_1 \gets A_1.\texttt{data}[k_1]$ \; 
@@ -373,7 +589,7 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
               $a_3 \gets A_3.\texttt{data}[k_3]$ \; 
               $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
               \If{$i \ge j$}{
-                $r \gets r + a_1 a_2 a_3 x[j]$ \; 
+                $y_i \gets y_i + a_1 a_2 a_3 x[j]$ \; 
               }
               \If{$i = j$}{
                 $a_d \gets a_1 a_2 a_3$ \; 
@@ -381,13 +597,61 @@ Since the diagonal block matrices can be either a Kronecker product of 3 matrice
             }
           }
         }
-        $x[i] \gets \frac{1}{a_d}(b[i] - r)$ \; 
+
+        $z_i \gets 0$ \; 
+        $b_d \gets 1$ \; 
+        \For{$k_1 \gets B_1.\texttt{ptr}[i_1]$ \textbf{to} $B_1.\texttt{ptr}[i_1+1] - 1$} {
+          $j_1 \gets B_1.\texttt{indices}[k_1]$ \; 
+          $a_1 \gets B_1.\texttt{data}[k_1]$ \; 
+          \For{$k_2 \gets B_2.\texttt{ptr}[i_2]$ \textbf{to} $B_2.\texttt{ptr}[i_2+1] - 1$} {
+            $j_2 \gets B_2.\texttt{indices}[k_2]$ \; 
+            $a_2 \gets B_2.\texttt{data}[k_2]$ \; 
+            \For{$k_3 \gets B_3.\texttt{ptr}[i_3]$ \textbf{to} $B_3.\texttt{ptr}[i_3+1] - 1$} {
+              $j_3 \gets B_3.\texttt{indices}[k_3]$ \; 
+              $a_3 \gets B_3.\texttt{data}[k_3]$ \; 
+              $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
+              \If{$i \ge j$}{
+                $z_i \gets z_i + a_1 a_2 a_3 x[j]$ \; 
+              }
+              \If{$i = j$}{
+                $b_d \gets a_1 a_2 a_3$ \; 
+              }
+            }
+          }
+        }
+
+        $w_i \gets 0$ \; 
+        $c_d \gets 1$ \; 
+        \For{$k_1 \gets C_1.\texttt{ptr}[i_1]$ \textbf{to} $C_1.\texttt{ptr}[i_1+1] - 1$} {
+          $j_1 \gets C_1.\texttt{indices}[k_1]$ \; 
+          $a_1 \gets C_1.\texttt{data}[k_1]$ \; 
+          \For{$k_2 \gets C_2.\texttt{ptr}[i_2]$ \textbf{to} $C_2.\texttt{ptr}[i_2+1] - 1$} {
+            $j_2 \gets C_2.\texttt{indices}[k_2]$ \; 
+            $a_2 \gets C_2.\texttt{data}[k_2]$ \; 
+            \For{$k_3 \gets C_3.\texttt{ptr}[i_3]$ \textbf{to} $C_3.\texttt{ptr}[i_3+1] - 1$} {
+              $j_3 \gets C_3.\texttt{indices}[k_3]$ \; 
+              $a_3 \gets C_3.\texttt{data}[k_3]$ \; 
+              $j \gets \texttt{multi\_index}(j_1, j_2, j_3)$ \; 
+              \If{$i \ge j$}{
+                $w_i \gets w_i + a_1 a_2 a_3 x[j]$ \; 
+              }
+              \If{$i = j$}{
+                $c_d \gets a_1 a_2 a_3$ \; 
+              }
+            }
+          }
+        }
+
+        $x[i] \gets \frac{1}{\alpha a_d + \beta b_d \gamma c_d}(b[i] - \alpha y_i - \beta z_i - \gamma w_i)$ \; 
+
       }
     }
   }
 
-\caption{\texttt{spsolve}: Triangular solver for upper Kronecker product matrix, for CSR storage.}
+  \caption{\texttt{spsolve}: Upper triangular solver for sum of Kronecker product [CSR] matrices.}
 \end{algorithm} 
+\end{minipage}
 % ...
 
+\clearpage
 \subsection{Computational Cost}

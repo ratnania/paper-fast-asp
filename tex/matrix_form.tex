@@ -1,4 +1,18 @@
 \section{Matrix form of the variational problem}
+In the sequel, we derive the matrix form related to the discrete variational formulation of \eqref{eq:curl-variational-problem}. 
+We shall consider a computational domain $\Omega$ as unit square $(0,1)^2$ or unit cube $(0,1)^3$ and derive the matrix form using the Kronecker Algebra. 
+Before expliciting the matrix forms in 2D and 3D, we start by introducing some 1D matrices that we will need.
+\begin{align}
+  \begin{cases}
+    \left( M_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis \Njs \dd x_s
+    \\
+    \left( K_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis^\prime \Njs^\prime \dd x_s
+    \\
+    \left( D_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Mis \Mjs \dd x_s
+    \\
+    \left( R_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis^\prime \Mjs \dd x_s
+  \end{cases}
+\end{align}
 
 \subsection{2D case}
 We consider the discrete variational formulation of \eqref{eq:curl-variational-problem}. 
@@ -8,7 +22,7 @@ For the sake of simplicity we shall introduce the scalar functions
   \\
   \Psi^2_{\jj} = \Njone \Mjtwo  
 \end{align*}
-we also define the vectors $\ee_1 = \begin{pmatrix} 1 \\ 0 \end{pmatrix}$ and $\ee_2 = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$. Therefor, the expression of $\uu_h \in \Vcurl$ becomes
+we also define the vectors $\ee_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ and $\ee_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$. Therefor, the expression of $\uu_h \in \Vcurl$ becomes
 \begin{align*}
   \uu_h = \sum\limits_{\jj} \left( 
     u_{\jj}^1 \Psi^1_{\jj} \ee_1 
@@ -18,10 +32,10 @@ we also define the vectors $\ee_1 = \begin{pmatrix} 1 \\ 0 \end{pmatrix}$ and $\
 we find that $A$ is a symmetric $2\times 2$ block matrix of the form
 \begin{align}
   A = 
-  \begin{pmatrix}
+  \begin{bmatrix}
     A_{11}   & A_{12} \\
     A_{12}^T & A_{22} \\
-  \end{pmatrix}
+  \end{bmatrix}
 %  \label{}
 \end{align}
 where
@@ -49,20 +63,6 @@ For the right hand side, the entries associated to each component of the vector 
     F_{1, i} & = \int_{\Omega} \ff_1 \Psi^1_{i} \dd \mathbf{x} \\
     F_{2, i} & = \int_{\Omega} \ff_2 \Psi^2_{i} \dd \mathbf{x} \\
 \end{align*}
-\subsubsection*{Case without mapping}
-When the computational domain is a cube, one can express the previous matrices in terms of Kronecker product.
-Before expliciting the matrix forms in 2D and 3D, we start by introducing some 1D matrices that we will need.
-\begin{align}
-  \begin{cases}
-    \left( M_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis \Njs \dd x_s
-    \\
-    \left( K_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis^\prime \Njs^\prime \dd x_s
-    \\
-    \left( D_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Mis \Mjs \dd x_s
-    \\
-    \left( R_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis^\prime \Mjs \dd x_s
-  \end{cases}
-\end{align}
 Hence, we have,
 \begin{align*}
   \begin{cases}
@@ -83,19 +83,19 @@ Therefor, we have the following matrix form
 where
 \begin{align}
   \mathcal{A}^0 = 
-  \begin{pmatrix}
+  \begin{bmatrix}
         D_1 \otimes K_2  & - R_1 \otimes R_2^T  \\
     - R_1^T \otimes R_2  &   K_1 \otimes D_2 
-  \end{pmatrix}
+  \end{bmatrix}
   \label{eq:matrix-A0-2d}
 \end{align}
 and
 \begin{align}
   \mathcal{M} = 
-  \begin{pmatrix}
+  \begin{bmatrix}
     D_1 \otimes M_2   & 0  \\
     0 & M_1 \otimes D_2   
-  \end{pmatrix}
+  \end{bmatrix}
   \label{eq:matrix-M-2d}
 \end{align}
 
@@ -109,7 +109,7 @@ For the sake of simplicity we shall introduce the scalar functions
   \\
   \Psi^3_{\jj} = \Njone \Njtwo \Mjtre  
 \end{align*}
-we also define the vectors $\ee_1 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$, $\ee_2 = \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix}$ and $\ee_3 = \begin{pmatrix} 0 \\ 0 \\ 1 \end{pmatrix}$. Therefor, the expression of $\uu_h \in \Vcurl$ becomes
+we also define the vectors $\ee_1 = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}$, $\ee_2 = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}$ and $\ee_3 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}$. Therefor, the expression of $\uu_h \in \Vcurl$ becomes
 \begin{align*}
   \uu_h = \sum\limits_{\jj} \left( 
     u_{\jj}^1 \Psi^1_{\jj} \ee_1 
@@ -166,11 +166,11 @@ Because $\ee_i \cdot \ee_j = \delta_{ij}$, we get,
 we find that $A$ is a symmetric $3\times 3$ block matrix of the form
 \begin{align}
   A = 
-  \begin{pmatrix}
+  \begin{bmatrix}
     A_{11}   & A_{12}   &  A_{13} \\
     A_{12}^T & A_{22}   &  A_{23} \\
     A_{13}^T & A_{23}^T &  A_{33} 
-  \end{pmatrix}
+  \end{bmatrix}
 %  \label{}
 \end{align}
 where
@@ -229,20 +229,6 @@ For the right hand side, the entries associated to each component of the vector 
     F_{2, i} & = \int_{\Omega} \ff_2 \Psi^2_{i} \dd \mathbf{x} \\
     F_{3, i} & = \int_{\Omega} \ff_3 \Psi^3_{i} \dd \mathbf{x} 
 \end{align*}
-\subsubsection*{Case without mapping}
-When the computational domain is a cube, one can express the previous matrices in terms of Kronecker product.
-%Before expliciting the matrix forms in 2D and 3D, we start by introducing some 1D matrices that we will need.
-%\begin{align}
-%  \begin{cases}
-%    \left( M_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis \Njs \dd x_s
-%    \\
-%    \left( K_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis^\prime \Njs^\prime \dd x_s
-%    \\
-%    \left( D_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Mis \Mjs \dd x_s
-%    \\
-%    \left( R_{s} \right)_{i_s, j_s} &= \int_{0}^1 \Nis^\prime \Mjs \dd x_s
-%  \end{cases}
-%\end{align}
 Hence, we have,
 \begin{align*}
   \begin{cases}
@@ -273,20 +259,20 @@ Therefor, we have the following matrix form
 where
 \begin{align}
   \mathcal{A}^0 = 
-  \begin{pmatrix}
+  \begin{bmatrix}
     D_1 \otimes M_2 \otimes K_3 + D_1 \otimes K_2 \otimes M_3  &                          - R_1 \otimes R_2^T \otimes M_3   &  - R_1 \otimes M_2 \otimes R_3^T \\
                                - R_1^T \otimes R_2 \otimes M_3 & M_1 \otimes D_2 \otimes K_3 + K_1 \otimes D_2 \otimes M_3  &  - M_1 \otimes R_2 \otimes R_3^T \\
                                - R_1^T \otimes M_2 \otimes R_3 &                          - M_1 \otimes R_2^T \otimes R_3   & M_1 \otimes K_2 \otimes D_3 + K_1 \otimes M_2 \otimes D_3  
-  \end{pmatrix}
+  \end{bmatrix}
   \label{eq:matrix-A0-3d}
 \end{align}
 and
 \begin{align}
   \mathcal{M} = 
-  \begin{pmatrix}
+  \begin{bmatrix}
     D_1 \otimes M_2 \otimes M_3   & 0   &  0 \\
     0 & M_1 \otimes D_2 \otimes M_3   &  0 \\
     0 & 0 &  M_1 \otimes M_2 \otimes D_3 
-  \end{pmatrix}
+  \end{bmatrix}
   \label{eq:matrix-M-3d}
 \end{align}
