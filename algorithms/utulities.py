@@ -19,12 +19,14 @@ def Gauss_Seidel_block(A11, A21, A22, b1, b2, kind, x0, iterations_number, spsol
     x1 = x0.copy()
     x2 = x0.copy()
     
+    L = tril(A11, format="csc")
     for i in range(m):
-        x1 += spsolve(A11, b1, lower=True)
+        x1 += spsolve(L, b1, lower=True)
     b2tild = b2 - A21.dot(x1)
     
+    L = tril(A21, format="csc")
     for i in range(m):
-        x2 += spsolve(A21, b2tild, lower=True)
+        x2 += spsolve(L, b2tild, lower=True)
     b2tild = b2 - A21.dot(x1)
     
     return x1, x2

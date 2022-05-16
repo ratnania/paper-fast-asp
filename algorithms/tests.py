@@ -66,7 +66,7 @@ def main(method, k, kind, m, spsolve):
                                kind              = kind,
                                x0                = None, 
                                iterations_number = m, 
-                               spsolve           = spsolve)
+                                   spsolve           = spsolve)
         te = time.time()
     
     if method == 'GS':
