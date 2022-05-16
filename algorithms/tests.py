@@ -10,7 +10,7 @@ from scipy.sparse.linalg import spsolve_triangular
 from scipy.sparse.linalg import eigs
 from scipy.sparse import identity, diags
 
-from utulities import Gauss_Seidel, succesive_over_relaxation
+from utulities import Gauss_Seidel, succesive_over_relaxation, Gauss_Seidel_block
 
 from tabulate import tabulate
 
@@ -23,7 +23,7 @@ spsolve   = spsolve_triangular
 ks        = [2, 3, 4, 5, 6, 7]
 kinds     = ['forward', 'backward', 'symmetric']
 m         = 100
-methods   = ['GS', 'SOR']
+methods   = ['GS', 'SOR', 'BGS']
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                    The main function
@@ -36,10 +36,38 @@ def main(method, k, kind, m, spsolve):
                 -np.diag(np.ones(n-1), k=-1)
     
     
-        
+    # print(A) 
+    # import sys; sys.exit()
     xref = np.random.random(n)
     xref = xref / np.linalg.norm(xref)
     b    = A.dot(xref)
+    
+    if method == 'BGS':
+        
+        upper_half = np.hsplit(np.vsplit(A, 2)[0], 2)
+        lower_half = np.hsplit(np.vsplit(A, 2)[1], 2)
+        
+        A11 = upper_half[0]
+        A12 = upper_half[1]
+        A21 = lower_half[0]
+        A22 = lower_half[1]
+        
+        
+        b1 = np.hsplit(b, 2)[0]
+        b2 = np.hsplit(b, 2)[1]
+        
+        print(A11)
+        
+        x = Gauss_Seidel_block(A11               = A11,
+                               A21               = A21,
+                               A22               = A22,
+                               b1                 = b1, 
+                               b2                 = b2, 
+                               kind              = kind,
+                               x0                = None, 
+                               iterations_number = m, 
+                               spsolve           = spsolve)
+        te = time.time()
     
     if method == 'GS':
         x = Gauss_Seidel(A                 = A, 
