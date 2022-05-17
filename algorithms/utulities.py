@@ -6,30 +6,34 @@ from scipy.sparse import tril, triu, diags
 from scipy.sparse import csr_matrix
 
 
-def Gauss_Seidel_block(A11, A21, A22, b1, b2, kind, x0, iterations_number, spsolve):
+def Gauss_Seidel_block_1(A11, A21, A22, b1, b2, kind, x0, iterations_number, spsolve):
     
-    if x0 == None:
-        n  = A11.shape[0]
-        x0 = np.zeros(n)
     A11 = csr_matrix(A11)
     A21 = csr_matrix(A21)
     A22 = csr_matrix(A22)
     
-    m = iterations_number
-    x1 = x0.copy()
-    x2 = x0.copy()
-    
-    L = tril(A11, format="csc")
-    for i in range(m):
-        x1 += spsolve(L, b1, lower=True)
+    x1 = spsolve(A11, b1)
     b2tild = b2 - A21.dot(x1)
     
-    L = tril(A21, format="csc")
-    for i in range(m):
-        x2 += spsolve(L, b2tild, lower=True)
-    b2tild = b2 - A21.dot(x1)
+    x2 = spsolve(A22, b2tild)
     
     return x1, x2
+
+
+def Gauss_Seidel_block_2(A11, A12, A22, b1, b2, kind, x0, iterations_number, spsolve):
+    
+    A11 = csr_matrix(A11)
+    A12 = csr_matrix(A12)
+    A22 = csr_matrix(A22)
+    
+    
+    x2 = spsolve(A22, b2)
+    b1tild = b1 - A12.dot(x2)
+    
+    x1 = spsolve(A11, b1tild)
+    
+    return x1, x2
+
 
 
 def Gauss_Seidel(A, b, kind, x0, iterations_number, spsolve):
