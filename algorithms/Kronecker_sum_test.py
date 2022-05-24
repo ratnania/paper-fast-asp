@@ -14,9 +14,9 @@ from utulities import Gauss_Seidel, succesive_over_relaxation, Gauss_Seidel_bloc
 
 from tabulate import tabulate
 
-from examples.matrices_3d import *
+from matrices_3d import *
 
-from kroneker import kroneker_lower, kroneker_upper
+from kroneker import *
 
 
 p1 = 2
@@ -219,77 +219,66 @@ alpha, beta, gamma = c11
 N = np.shape(A1)[0]*np.shape(A2)[0]*np.shape(A3)[0]
 
 b = np.ones(N)
-x0 = np.empty(N, dtype=float)
+x1 = np.zeros(N)#, dtype=float)
 xref = la.solve(M11.toarray(), b)
 
-x1 = kroneker_lower(A1_data, A1_ind, A1_ptr,
-                       A2_data, A2_ind, A2_ptr,
-                       A3_data, A3_ind, A3_ptr,
-                       B1_data, B1_ind, B1_ptr,
-                       B2_data, B2_ind, B2_ptr,
-                       B3_data, B3_ind, B3_ptr,
-                       C1_data, C1_ind, C1_ptr,
-                       C2_data, C2_ind, C2_ptr,
-                       C3_data, C3_ind, C3_ptr,
-                       alpha, beta, gamma,
-                       b, x0)
+kroneker_lower(A1_data, A1_ind, A1_ptr,
+               A2_data, A2_ind, A2_ptr,
+               A3_data, A3_ind, A3_ptr,
+               B1_data, B1_ind, B1_ptr,
+               B2_data, B2_ind, B2_ptr,
+               B3_data, B3_ind, B3_ptr,
+               C1_data, C1_ind, C1_ptr,
+               C2_data, C2_ind, C2_ptr,
+               C3_data, C3_ind, C3_ptr,
+               alpha, beta, gamma,
+               b, x1)
 
 print(r'err_lower: %.e' %(max(abs(x1-xref))))
 
-x0 = np.empty(N, dtype=float)
-x1 = kroneker_upper(A1_data, A1_ind, A1_ptr,
-                       A2_data, A2_ind, A2_ptr,
-                       A3_data, A3_ind, A3_ptr,
-                       B1_data, B1_ind, B1_ptr,
-                       B2_data, B2_ind, B2_ptr,
-                       B3_data, B3_ind, B3_ptr,
-                       C1_data, C1_ind, C1_ptr,
-                       C2_data, C2_ind, C2_ptr,
-                       C3_data, C3_ind, C3_ptr,
-                       alpha, beta, gamma,
-                       b, x0)
+x1 = np.zeros(N)#, dtype=float)
+kroneker_upper(A1_data, A1_ind, A1_ptr,
+                A2_data, A2_ind, A2_ptr,
+                A3_data, A3_ind, A3_ptr,
+                B1_data, B1_ind, B1_ptr,
+                B2_data, B2_ind, B2_ptr,
+                B3_data, B3_ind, B3_ptr,
+                C1_data, C1_ind, C1_ptr,
+                C2_data, C2_ind, C2_ptr,
+                C3_data, C3_ind, C3_ptr,
+                alpha, beta, gamma,
+                b, x1)
 
 
 print(r'err_upper: %.e' %(max(abs(x1-xref))))
 
 
+spsolve_kron_csr_3_sum_lower(A1_data, A1_ind, A1_ptr,
+                           A2_data, A2_ind, A2_ptr,
+                           A3_data, A3_ind, A3_ptr,
+                           B1_data, B1_ind, B1_ptr,
+                           B2_data, B2_ind, B2_ptr,
+                           B3_data, B3_ind, B3_ptr,
+                           C1_data, C1_ind, C1_ptr,
+                           C2_data, C2_ind, C2_ptr,
+                           C3_data, C3_ind, C3_ptr,
+                           alpha, beta, gamma,
+                           b, x1)
+
+print(r'err_lower  old imp: %.e' %(max(abs(x1-xref))))
+
+x1 = np.zeros(N)#, dtype=float)
+spsolve_kron_csr_3_sum_upper(A1_data, A1_ind, A1_ptr,
+                           A2_data, A2_ind, A2_ptr,
+                           A3_data, A3_ind, A3_ptr,
+                           B1_data, B1_ind, B1_ptr,
+                           B2_data, B2_ind, B2_ptr,
+                           B3_data, B3_ind, B3_ptr,
+                           C1_data, C1_ind, C1_ptr,
+                           C2_data, C2_ind, C2_ptr,
+                           C3_data, C3_ind, C3_ptr,
+                           alpha, beta, gamma,
+                           b, x1)
 
 
-
-
-
-
-
-        
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-        
-    
-
-
-    
-
-        
+print(r'err_upper  old imp: %.e' %(max(abs(x1-xref))))
