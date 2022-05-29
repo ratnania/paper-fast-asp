@@ -43,43 +43,42 @@ def curl_matrix(T,p, tau, normalize, form):
     R3 = R_matrix(T3,p3, normalize=normalize)
     
     if form == 'csr':
-        D1 = csr_matrix(D1)
-        D2 = csr_matrix(D2)
-        D3 = csr_matrix(D3)
-        M1 = csr_matrix(M1)
-        M2 = csr_matrix(M2)
-        M3 = csr_matrix(M3)
-        K1 = csr_matrix(K1)
-        K2 = csr_matrix(K2)
-        K3 = csr_matrix(K3)
-        R1 = csr_matrix(R1)
-        R2 = csr_matrix(R2)
-        R3 = csr_matrix(R3)
+        D1   = csr_matrix(D1)
+        D2   = csr_matrix(D2)
+        D3   = csr_matrix(D3)
+        M1   = csr_matrix(M1)
+        M2   = csr_matrix(M2)
+        M3   = csr_matrix(M3)
+        K1   = csr_matrix(K1)
+        K2   = csr_matrix(K2)
+        K3   = csr_matrix(K3)
+        R1   = csr_matrix(R1)
+        R2   = csr_matrix(R2)
+        R3   = csr_matrix(R3)
+        R1_T = csr_matrix(R1.T)
+        R2_T = csr_matrix(R2.T)
+        R3_T = csr_matrix(R3.T)
+        M3_T = csr_matrix(M3.T)
+        
         
     A11 = (D1, M2, K3, D1, K2, M3, D1, M2, M3)
-    A12 = (R1, R2.T, M3)
-    A13 = (R1, M2, R3.T)
-    A21 = (R1.T, R2, M3.T)
+    A12 = -sp_kron(sp_kron(R1,R2_T),M3)
+    A13 = -sp_kron(sp_kron(R1,M2),R3_T)
+    A21 = -sp_kron(sp_kron(R1_T,R2),M3_T)
     A22 = (K1, D2, M3, M1, D2, K3, M1, D2, M3)
-    A23 = (M1, R2 , R3.T)
-    A31 = (R1.T, M2, R3)
-    A32 = (M1, R2.T, R3)
+    A23 = -sp_kron(sp_kron(M1,R2),R3_T)
+    A31 = -sp_kron(sp_kron(R1_T,M2),R3)
+    A32 = -sp_kron(sp_kron(M1,R2_T),R3)
     A33 = (M1, K2, D3, K1, M2, D3, M1, M2, D3)
     
-    c11 = (1., 1., tau)
-    c12 = (-1., 0., 0.)
-    c13 = (-1., 0., 0.)
-    c21 = (-1., 0., 0.) 
-    c22 = (1., 1., tau)
-    c23 = (-1., 0., 0.)
-    c31 = (-1., 0., 0.)
-    c32 = (-1., 0., 0.)
-    c33 = (1., 1., tau)
+    c1 = (1., 1., tau)
+    c2 = (1., 1., tau)
+    c3 = (1., 1., tau)
     
     
     
     matrices     = [A11, A12, A13, A21, A22, A23, A31, A32, A33]
-    confficients = [c11, c12, c13, c21, c22, c23, c31, c32, c33]
+    confficients = [c1, c2, c3]
     
     '''
     A11 = sp_kron(sp_kron(D1,M2),K3) + sp_kron(sp_kron(D1,K2),M3)

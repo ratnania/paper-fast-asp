@@ -3,28 +3,45 @@
 
 import numpy as np
 import time
+import os
 
 from numpy import linalg as la
 
-from scipy.sparse.linalg import spsolve_triangular, spsolve
-from scipy.sparse.linalg import eigs
-from scipy.sparse import identity, diags, csr_matrix, bmat
+#from scipy.sparse.linalg import spsolve_triangular, spsolve
+#from scipy.sparse.linalg import 
+#from scipy.sparse import identity, diags, csr_matrix, bmat, tril, triu
+from scipy.sparse import kron as sp_kron # TODO remove
 
-from utulities import Gauss_Seidel, succesive_over_relaxation, Gauss_Seidel_block_1, Gauss_Seidel_block_2
 
 from tabulate import tabulate
 
-from matrices_3d import *
+from examples.matrices_3d import curl_matrix
+from examples.asp_1d import knot_vector
 
-from kroneker import *
+from kroneker import Gauss_Seidel
+
+sprint = lambda x: '{:.2e}'.format(x)
 
 
-p1 = 2
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   Data
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ps            = (1, 2)
+ks            = (2, 3, 4)
+tau           = 10.**2
+problems      = ['curl']
+ms            = [1, 10]
+
+
+
+'''
+p1 = 3
 p2 = 2
-p3 = 2
+p3 = 1
 n1 = 2**2
-n2 = 2**2
-n3 = 2**2
+n2 = 2**4
+n3 = 2**3
 
 p  = (p1, p2, p3)
 n  = (n1, n2, n3)
@@ -34,7 +51,7 @@ T2 = knot_vector(n2, p2)
 T3 = knot_vector(n3, p3)
 T  = (T1, T2, T3)
 
-tau = 0.
+tau = 10.**2
 normalize = True
 
 matrices, confficients = curl_matrix(T         = T, 
@@ -42,6 +59,7 @@ matrices, confficients = curl_matrix(T         = T,
                                      tau       = tau,
                                      normalize = normalize, 
                                      form      = 'csr')
+
 
 A11 = matrices[0] 
 A12 = matrices[1] 
@@ -53,40 +71,20 @@ A31 = matrices[6]
 A32 = matrices[7] 
 A33 = matrices[8] 
 
-c11 = confficients[0] 
-c12 = confficients[1] 
-c13 = confficients[2] 
-c21 = confficients[3] 
-c22 = confficients[4] 
-c23 = confficients[5] 
-c31 = confficients[6] 
-c32 = confficients[7] 
-c33 = confficients[8] 
+c1 = confficients[0] 
+c2 = confficients[1] 
+c3 = confficients[2] 
  
- 
-
 (D1, M2, K3, D1, K2, M3, D1, M2, M3) = A11
-(R1, R2_T, M3)                       = A12
-(R1, M2, R3_T)                       = A13
-(R1_T, R2, M3_T)                     = A21
 (K1, D2, M3, M1, D2, K3, M1, D2, M3) = A22
-(M1, R2 , R3_T)                      = A23
-(R1_T, M2, R3)                       = A31
-(M1, R2_T, R3)                       = A32
 (M1, K2, D3, K1, M2, D3, M1, M2, D3) = A33
 
 M11 = sp_kron(sp_kron(D1,M2),K3) + sp_kron(sp_kron(D1,K2),M3) + tau*sp_kron(sp_kron(D1,M2),M3)
-M12 = -sp_kron(sp_kron(R1,R2_T),M3)
-M13 = -sp_kron(sp_kron(R1,M2),R3_T)
-M21 = -sp_kron(sp_kron(R1_T,R2),M3_T)
 M22 = sp_kron(sp_kron(K1,D2),M3)+sp_kron(sp_kron(M1,D2),K3) + tau*sp_kron(sp_kron(M1,D2),M3) 
-M23 = -sp_kron(sp_kron(M1,R2),R3_T)
-M31 = -sp_kron(sp_kron(R1_T,M2),R3)
-M32 = -sp_kron(sp_kron(M1,R2_T),R3)
 M33 = sp_kron(sp_kron(M1,K2),D3) + sp_kron(sp_kron(K1,M2),D3) + tau*sp_kron(sp_kron(M1,M2),D3)  
+'''
 
-
-
+'''
 print('=============== shape of elementary matrices ===============')
 print(np.shape(M11))
 print(np.shape(M12))
@@ -121,164 +119,351 @@ print(la.cond(M23.toarray()))
 print(la.cond(M31.toarray()))
 print(la.cond(M32.toarray()))
 print(la.cond(M33.toarray()))
+'''
 
-print('=============== inv test for elementary matrices ===============')
-try:
-    la.inv(M11.toarray())
-    print('M11: 1')
-except:
-    print('M11: 0')
-    
-try:
-    la.inv(M12.toarray())
-    print('M12: 1')
-except:
-    print('M12: 0')
 
-try:
-    la.inv(M13.toarray())
-    print('M13: 1')
-except:
-    print('M13: 0')
 
-try:
-    la.inv(M21.toarray())
-    print('M21: 1')
-except:
-    print('M21: 0')
 
-try:
-    la.inv(M22.toarray())
-    print('M22: 1')
-except:
-    print('M12: 0')
 
-try:
-    la.inv(M23.toarray())
-    print('M23: 1')
-except:
-    print('M23: 0')
-
-try:
-    la.inv(M31.toarray())
-    print('M31: 1')
-except:
-    print('M31: 0')
-
-try:
-    la.inv(M32.toarray())
-    print('M32: 1')
-except:
-    print('M32: 0')
-
-try:
-    la.inv(M33.toarray())
-    print('M33: 1')
-except:
-    print('M33: 0')
-    
-
+'''
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                                   test1
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 A1, A2, A3, B1, B2, B3, C1, C2, C3 = A11
 
-A1_data = A1.data
-A1_ind  = A1.indices
-A1_ptr  = A1.indptr
-A2_data = A2.data
-A2_ind  = A2.indices
-A2_ptr  = A2.indptr
-A3_data = A3.data
-A3_ind  = A3.indices
-A3_ptr  = A3.indptr
+N = np.shape(A1)[0]*np.shape(A2)[0]*np.shape(A3)[0]
+b = np.ones(N)
 
-B1_data = B1.data
-B1_ind  = B1.indices
-B1_ptr  = B1.indptr
-B2_data = B2.data
-B2_ind  = B2.indices
-B2_ptr  = B2.indptr
-B3_data = B3.data
-B3_ind  = B3.indices
-B3_ptr  = B3.indptr
+xref = la.solve(tril(M11, format='csr').toarray(), b)
+x = spsolve_kron_sum(matrices = A11, 
+                     confficients = confficients[0], 
+                     b = b, 
+                     lower = True)
 
-C1_data = C1.data
-C1_ind  = C1.indices
-C1_ptr  = C1.indptr
-C2_data = C2.data
-C2_ind  = C2.indices
-C2_ptr  = C2.indptr
-C3_data = C3.data
-C3_ind  = C3.indices
-C3_ptr  = C3.indptr
+print(r'err_lower: %.e' %(max(abs(x-xref))))
 
-alpha, beta, gamma = c11
 
+xref = la.solve(triu(M11, format='csr').toarray(), b)
+x = spsolve_kron_sum(matrices = A11, 
+                     confficients = confficients[0], 
+                     b = b, 
+                     lower = False)
+
+print(r'err_upper: %.e' %(max(abs(x-xref))))
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   test2
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A1, A2, A3, B1, B2, B3, C1, C2, C3 = A22
 
 N = np.shape(A1)[0]*np.shape(A2)[0]*np.shape(A3)[0]
-
 b = np.ones(N)
-x1 = np.zeros(N)#, dtype=float)
-xref = la.solve(M11.toarray(), b)
 
-kroneker_lower(A1_data, A1_ind, A1_ptr,
-               A2_data, A2_ind, A2_ptr,
-               A3_data, A3_ind, A3_ptr,
-               B1_data, B1_ind, B1_ptr,
-               B2_data, B2_ind, B2_ptr,
-               B3_data, B3_ind, B3_ptr,
-               C1_data, C1_ind, C1_ptr,
-               C2_data, C2_ind, C2_ptr,
-               C3_data, C3_ind, C3_ptr,
-               alpha, beta, gamma,
-               b, x1)
+xref = la.solve(tril(M22, format='csr').toarray(), b)
+x = spsolve_kron_sum(matrices = A22, 
+                      confficients = confficients[0], 
+                      b = b, 
+                      lower = True)
 
-print(r'err_lower: %.e' %(max(abs(x1-xref))))
+print(r'err_lower: %.e' %(max(abs(x-xref))))
 
-x1 = np.zeros(N)#, dtype=float)
-kroneker_upper(A1_data, A1_ind, A1_ptr,
-                A2_data, A2_ind, A2_ptr,
-                A3_data, A3_ind, A3_ptr,
-                B1_data, B1_ind, B1_ptr,
-                B2_data, B2_ind, B2_ptr,
-                B3_data, B3_ind, B3_ptr,
-                C1_data, C1_ind, C1_ptr,
-                C2_data, C2_ind, C2_ptr,
-                C3_data, C3_ind, C3_ptr,
-                alpha, beta, gamma,
-                b, x1)
+xref = la.solve(triu(M22, format='csr').toarray(), b)
+x = spsolve_kron_sum(matrices = A22, 
+                     confficients = confficients[0], 
+                     b = b, 
+                     lower = False)
+
+print(r'err_upper: %.e' %(max(abs(x-xref))))
 
 
-print(r'err_upper: %.e' %(max(abs(x1-xref))))
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   test3
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A1, A2, A3, B1, B2, B3, C1, C2, C3 = A33
+
+N = np.shape(A1)[0]*np.shape(A2)[0]*np.shape(A3)[0]
+b = np.ones(N)
+
+xref = la.solve(tril(M33, format='csr').toarray(), b)
+x = spsolve_kron_sum(matrices = A33, 
+                     confficients = confficients[0], 
+                     b = b, 
+                     lower = True)
+
+print(r'err_lower: %.e' %(max(abs(x-xref))))
+
+xref = la.solve(triu(M33, format='csr').toarray(), b)
+x = spsolve_kron_sum(matrices = A33, 
+                     confficients = confficients[0], 
+                     b = b, 
+                     lower = False)
+
+print(r'err_upper: %.e' %(max(abs(x-xref))))
+'''
+
+'''
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   test4
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A = [A11, None, None,
+     A21, A22, None,
+     A31, A32, A33]
+
+A1_1, A2_1, A3_1, B1_1, B2_1, B3_1, C1_1, C2_1, C3_1 = A11
+A1_2, A2_2, A3_2, B1_2, B2_2, B3_2, C1_2, C2_2, C3_2 = A22
+A1_3, A2_3, A3_3, B1_3, B2_3, B3_3, C1_3, C2_3, C3_3 = A33
 
 
-spsolve_kron_csr_3_sum_lower(A1_data, A1_ind, A1_ptr,
-                           A2_data, A2_ind, A2_ptr,
-                           A3_data, A3_ind, A3_ptr,
-                           B1_data, B1_ind, B1_ptr,
-                           B2_data, B2_ind, B2_ptr,
-                           B3_data, B3_ind, B3_ptr,
-                           C1_data, C1_ind, C1_ptr,
-                           C2_data, C2_ind, C2_ptr,
-                           C3_data, C3_ind, C3_ptr,
-                           alpha, beta, gamma,
-                           b, x1)
+n1 = A1_1.shape[0]*A2_1.shape[0]*A3_1.shape[0]
+n2 = A1_2.shape[0]*A2_2.shape[0]*A3_2.shape[0]
+n3 = A1_3.shape[0]*A2_3.shape[0]*A3_3.shape[0]
 
-print(r'err_lower  old imp: %.e' %(max(abs(x1-xref))))
+b = np.ones(n1+n2+n3)
 
-x1 = np.zeros(N)#, dtype=float)
-spsolve_kron_csr_3_sum_upper(A1_data, A1_ind, A1_ptr,
-                           A2_data, A2_ind, A2_ptr,
-                           A3_data, A3_ind, A3_ptr,
-                           B1_data, B1_ind, B1_ptr,
-                           B2_data, B2_ind, B2_ptr,
-                           B3_data, B3_ind, B3_ptr,
-                           C1_data, C1_ind, C1_ptr,
-                           C2_data, C2_ind, C2_ptr,
-                           C3_data, C3_ind, C3_ptr,
-                           alpha, beta, gamma,
-                           b, x1)
+x = spsolve_kron_block(A, confficients, b)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   test5
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A = [A11, A12, A13,
+     None, A22, A23,
+     None, None, A33]
+
+A1_1, A2_1, A3_1, B1_1, B2_1, B3_1, C1_1, C2_1, C3_1 = A11
+A1_2, A2_2, A3_2, B1_2, B2_2, B3_2, C1_2, C2_2, C3_2 = A22
+A1_3, A2_3, A3_3, B1_3, B2_3, B3_3, C1_3, C2_3, C3_3 = A33
 
 
-print(r'err_upper  old imp: %.e' %(max(abs(x1-xref))))
+n1 = A1_1.shape[0]*A2_1.shape[0]*A3_1.shape[0]
+n2 = A1_2.shape[0]*A2_2.shape[0]*A3_2.shape[0]
+n3 = A1_3.shape[0]*A2_3.shape[0]*A3_3.shape[0]
+
+b = np.ones(n1+n2+n3)
+
+x = spsolve_kron_block(A, confficients, b)
+'''
+
+'''
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   test6
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A = [A11, A12, A13,
+     A21, A22, A23,
+     A31, A32, A33]
+
+A1_1, A2_1, A3_1, B1_1, B2_1, B3_1, C1_1, C2_1, C3_1 = A11
+A1_2, A2_2, A3_2, B1_2, B2_2, B3_2, C1_2, C2_2, C3_2 = A22
+A1_3, A2_3, A3_3, B1_3, B2_3, B3_3, C1_3, C2_3, C3_3 = A33
+
+
+n1 = A1_1.shape[0]*A2_1.shape[0]*A3_1.shape[0]
+n2 = A1_2.shape[0]*A2_2.shape[0]*A3_2.shape[0]
+n3 = A1_3.shape[0]*A2_3.shape[0]*A3_3.shape[0]
+
+xref = np.ones(n1+n2+n3)
+xref = xref/la.norm(xref)
+x1 = xref[:n1]
+x2 = xref[n1:n1+n2]
+x3 = xref[n1+n2:]
+ 
+b1 = M11.dot(x1)+A12.dot(x2)+A13.dot(x3) 
+b2 = A21.dot(x1)+M22.dot(x2)+A23.dot(x3) 
+b3 = A31.dot(x1)+A32.dot(x2)+M33.dot(x3)
+b  = np.concatenate([b1,b2,b3])
+
+#b = np.ones(n1+n2+n3)
+
+x = Gauss_Seidel(A, confficients, b, None,10)
+
+
+print(r'err: %.e' %(max(abs(x-xref))))
+'''
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                    Creates files which contains results
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+def mkdir_p(dir):
+    # type: (unicode) -> None
+    if os.path.isdir(dir):
+        return
+    os.makedirs(dir)
+    
+def create_folder(problem):
+    
+    folder = '3d_results/{problem}'.format(problem=problem)
+            
+    mkdir_p(os.path.join(folder, 'txt'))
+    mkdir_p(os.path.join(folder, 'tex'))
+    
+    return folder
+
+def write_table(d, m, folder, kind):
+    headers = ['grid/degree p']
+    
+    for p in ps:
+        headers.append(str(p))
+    
+    # add table rows
+    rows = []
+    for k in ks:
+        ncell = str(2**k)
+        row = ['$' + ncell + ' \\times ' + ncell + ' \\times ' + ncell + '$']
+        for p in ps:
+            value = d[p, k][kind]
+            if isinstance(value, int):
+                v = '$'+str(value) +'$'
+            else:
+                v =  '$'+sprint(value)+'$' 
+            row.append(v)
+        rows.append(row)
+    
+    table = tabulate(rows, headers=headers)
+    
+    
+    
+    
+    fname = '{label}_m{m}.txt'.format(label=kind, m=m)
+    fname = os.path.join('txt', fname)
+    fname = os.path.join(folder, fname)
+    
+    with open(fname, 'w') as f:
+        table = tabulate(rows, headers=headers, tablefmt ='fancy_grid')
+        f.write(str(table))
+    
+    fname = '{label}_m{m}.tex'.format(label=kind, m=m)
+    fname = os.path.join('tex', fname)
+    fname = os.path.join(folder, fname)
+    
+    with open(fname, 'w') as f:
+        table = tabulate(rows, headers=headers, tablefmt='latex_raw')
+        f.write(str(table))
+        
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                    The main function
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def main(k, p, m, problem):
+    print('============pb={problem}, m={m}, p = {p}, k = {k}============'
+          .format(problem= problem, m=m, p=p,k=k))
+    
+    tb = time.time()
+    
+    n  = 2**k 
+    T1 = knot_vector(n, p)
+    T2 = knot_vector(n, p)
+    T3 = knot_vector(n, p)
+    T  = (T1,T2,T3)
+    
+    if  problem == 'curl':
+        matrices, confficients = curl_matrix(T         = T, 
+                                             p         = (p, p, p), 
+                                             tau       = tau,
+                                             normalize = True, 
+                                             form      = 'csr')
+    else : 
+        "TODO"
+    
+    info = {}
+    
+    A11 = matrices[0] 
+    A12 = matrices[1] 
+    A13 = matrices[2] 
+    A21 = matrices[3] 
+    A22 = matrices[4] 
+    A23 = matrices[5] 
+    A31 = matrices[6] 
+    A32 = matrices[7] 
+    A33 = matrices[8] 
+    
+    A = [A11, A12, A13,
+         A21, A22, A23,
+         A31, A32, A33]
+    
+    (D1, M2, K3, D1, K2, M3, D1, M2, M3) = A11
+    (K1, D2, M3, M1, D2, K3, M1, D2, M3) = A22
+    (M1, K2, D3, K1, M2, D3, M1, M2, D3) = A33
+
+    M11 = sp_kron(sp_kron(D1,M2),K3) + sp_kron(sp_kron(D1,K2),M3) + tau*sp_kron(sp_kron(D1,M2),M3)
+    M22 = sp_kron(sp_kron(K1,D2),M3)+sp_kron(sp_kron(M1,D2),K3) + tau*sp_kron(sp_kron(M1,D2),M3) 
+    M33 = sp_kron(sp_kron(M1,K2),D3) + sp_kron(sp_kron(K1,M2),D3) + tau*sp_kron(sp_kron(M1,M2),D3)
+    
+    A1_1, A2_1, A3_1, B1_1, B2_1, B3_1, C1_1, C2_1, C3_1 = A11
+    A1_2, A2_2, A3_2, B1_2, B2_2, B3_2, C1_2, C2_2, C3_2 = A22
+    A1_3, A2_3, A3_3, B1_3, B2_3, B3_3, C1_3, C2_3, C3_3 = A33
+    
+    n1 = A1_1.shape[0]*A2_1.shape[0]*A3_1.shape[0]
+    n2 = A1_2.shape[0]*A2_2.shape[0]*A3_2.shape[0]
+    n3 = A1_3.shape[0]*A2_3.shape[0]*A3_3.shape[0] 
+
+    xref = np.random.random(n1+n2+n3)
+    xref = xref / np.linalg.norm(xref)
+    
+    x1 = xref[:n1]
+    x2 = xref[n1:n1+n2]
+    x3 = xref[n1+n2:]
+    
+    b1 = M11.dot(x1)+A12.dot(x2)+A13.dot(x3) 
+    b2 = A21.dot(x1)+M22.dot(x2)+A23.dot(x3) 
+    b3 = A31.dot(x1)+A32.dot(x2)+M33.dot(x3)
+    b  = np.concatenate([b1,b2,b3])
+    
+    x  = Gauss_Seidel(A, confficients, b, None, m)
+    
+    te = time.time()
+    
+    err_2   = la.norm(x-xref)
+    err_max = max(abs(x-xref))
+    
+    info['err_2']        = err_2 
+    info['err_max']      = err_max 
+    info['elapsed'] = te-tb
+    
+    print('err_2: ', sprint(err_2)) 
+    print('err_max: ', sprint(err_max))
+    print('elapsed_time: ', sprint(te-tb))
+    
+    return info
+    
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                    Creates the tables
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def main_tables(problem):
+    
+    folder = create_folder(problem  = problem)
+    for m in ms:
+        d = {}
+        for p in ps:
+            for k in ks:
+                info = main(k        = k, 
+                            p        = p, 
+                            m        = m,
+                            problem  = problem)
+
+                d[p,k] = info
+    
+        write_table(d, m, folder = folder, kind ='err_2')
+        write_table(d, m, folder = folder, kind ='err_max')
+        write_table(d, m, folder = folder, kind ='elapsed')
+            
+                   
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                               Run tests
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# =========================================================================
+if __name__ == '__main__':
+    for problem in problems:
+        main_tables(problem  = problem)
+            
+
+        
+    
+    
+    
+
+
