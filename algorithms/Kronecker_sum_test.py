@@ -18,7 +18,7 @@ from tabulate import tabulate
 from examples.matrices_3d import curl_matrix
 from examples.asp_1d import knot_vector
 
-from kroneker import Gauss_Seidel
+from kron_spsolve import Gauss_Seidel
 
 sprint = lambda x: '{:.2e}'.format(x)
 
@@ -27,8 +27,8 @@ sprint = lambda x: '{:.2e}'.format(x)
 #                                   Data
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ps            = (1, 2)
-ks            = (2, 3, 4)
+ps            = (1, 2, 3,)
+ks            = (2, 3, 4,)
 tau           = 10.**2
 problems      = ['curl']
 ms            = [1, 10]
