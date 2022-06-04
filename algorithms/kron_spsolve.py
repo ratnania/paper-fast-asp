@@ -1,160 +1,9 @@
 
-from scipy.sparse import kron as sp_kron
+#from scipy.sparse import kron as sp_kron
 import numpy as np
 
 from kroneker import spsolve_kron_csr_3_sum_lower, spsolve_kron_csr_3_sum_upper
-
-# =========================================================================
-def spsolve_kron_block(matrices, confficients, b):
-    """
-    Solves a triangular system of the form
-
-    | A11   0   0 | [x1] = [y1]
-    | A21 A22   0 | [x2] = [y2]
-    | A31 A32 A33 | [x3] = [y3]
-
-    if A11 and A22 and A33 are lower triangular matrices.
-
-    or
-
-    | A11 A12 A13 | [x1] = [y1]
-    |   0 A22 A23 | [x2] = [y2]
-    |   0   0 A33 | [x3] = [y3]
-
-    if A11 and A22 and A33 are upper triangular matrices.
-    0 matrices must be specified as None
-    """
-    # ...
-    
-    A11 = matrices[0] 
-    A12 = matrices[1] 
-    A13 = matrices[2] 
-    A21 = matrices[3] 
-    A22 = matrices[4] 
-    A23 = matrices[5] 
-    A31 = matrices[6] 
-    A32 = matrices[7] 
-    A33 = matrices[8] 
-    
-    c1 = confficients[0] 
-    c2 = confficients[1]
-    c3 = confficients[2] 
-    
-    
-    A1_1, A2_1, A3_1, B1_1, B2_1, B3_1, C1_1, C2_1, C3_1 = A11
-    A1_2, A2_2, A3_2, B1_2, B2_2, B3_2, C1_2, C2_2, C3_2 = A22
-    A1_3, A2_3, A3_3, B1_3, B2_3, B3_3, C1_3, C2_3, C3_3 = A33
-    
-
-    n1 = A1_1.shape[0]*A2_1.shape[0]*A3_1.shape[0]
-    n2 = A1_2.shape[0]*A2_2.shape[0]*A3_2.shape[0]
-    n3 = A1_3.shape[0]*A2_3.shape[0]*A3_3.shape[0]
-    # ...
-    
-    # ...
-    b1 = b[:n1]
-    b2 = b[n1:n1+n2]
-    b3 = b[n1+n2:]
-    # ...
-
-    # lower triangular matrix case
-    if (A12 is None) and (A13 is None) and (A23 is None):
-        x1 = spsolve_kron_sum(A11, c1, b1, lower=True)
-        x2 = spsolve_kron_sum(A22, c2, b2 - A21.dot(x1), lower=True)
-        x3 = spsolve_kron_sum(A33, c3, b3 - A31.dot(x1) - A32.dot(x2), lower=True)
-
-    # upper triangular matrix case
-    elif (A21 is None) and (A31 is None) and (A32 is None):
-        x3 = spsolve_kron_sum(A33, c3, b3, lower=False)
-        x2 = spsolve_kron_sum(A22, c2, b2 - A23.dot(x3), lower=False)
-        x1 = spsolve_kron_sum(A11, c1, b1 - A12.dot(x2) - A13.dot(x3), lower=False)
-
-    else:
-        raise ValueError('Wrong entries')
-
-    return np.concatenate([x1,x2,x3])
-
-def Gauss_Seidel(matrices,  confficients, b, x, iterations_number):
-    
-    A11 = matrices[0] 
-    A12 = matrices[1] 
-    A13 = matrices[2] 
-    A21 = matrices[3] 
-    A22 = matrices[4] 
-    A23 = matrices[5] 
-    A31 = matrices[6] 
-    A32 = matrices[7] 
-    A33 = matrices[8] 
-    
-    c1 = confficients[0] 
-    c2 = confficients[1]
-    c3 = confficients[2] 
-    
-    
-    A1_1, A2_1, A3_1, B1_1, B2_1, B3_1, C1_1, C2_1, C3_1 = A11
-    A1_2, A2_2, A3_2, B1_2, B2_2, B3_2, C1_2, C2_2, C3_2 = A22
-    A1_3, A2_3, A3_3, B1_3, B2_3, B3_3, C1_3, C2_3, C3_3 = A33
-    
-
-    n1 = A1_1.shape[0]*A2_1.shape[0]*A3_1.shape[0]
-    n2 = A1_2.shape[0]*A2_2.shape[0]*A3_2.shape[0]
-    n3 = A1_3.shape[0]*A2_3.shape[0]*A3_3.shape[0]
-    # ...
-    
-    # ...
-    b1 = b[:n1]
-    b2 = b[n1:n1+n2]
-    b3 = b[n1+n2:]
-    # ...
-    
-    (D1, M2, K3, D1, K2, M3, D1, M2, M3) = A11
-    (K1, D2, M3, M1, D2, K3, M1, D2, M3) = A22
-    (M1, K2, D3, K1, M2, D3, M1, M2, D3) = A33
-
-    M11 = c1[0]*sp_kron(sp_kron(D1,M2),K3) + c1[1]*sp_kron(sp_kron(D1,K2),M3) + c1[2]*sp_kron(sp_kron(D1,M2),M3)
-    M22 = c2[0]*sp_kron(sp_kron(K1,D2),M3) + c2[1]*sp_kron(sp_kron(M1,D2),K3) + c2[2]*sp_kron(sp_kron(M1,D2),M3) 
-    M33 = c3[0]*sp_kron(sp_kron(M1,K2),D3) + c3[1]*sp_kron(sp_kron(K1,M2),D3) + c3[2]*sp_kron(sp_kron(M1,M2),D3) 
-    
-
-    
-    
-    if x == None:
-        x = np.zeros(n1+n2+n3)
-    #A = csr_matrix(A)
-    m = iterations_number
-    #x = x0
-    for i in range(m):
-        x1 = x[:n1]
-        x2 = x[n1:n1+n2]
-        x3 = x[n1+n2:]
-        
-        B1 = M11.dot(x1)+A12.dot(x2)+A13.dot(x3) 
-        B2 = A21.dot(x1)+M22.dot(x2)+A23.dot(x3) 
-        B3 = A31.dot(x1)+A32.dot(x2)+M33.dot(x3)
-        
-        B = np.concatenate([B1,B2,B3])
-        
-        A = [A11, None, None,
-             A21, A22, None,
-             A31, A32, A33]
-        x += spsolve_kron_block(A, confficients, b-B)
-        
-    for i in range(m):
-        x1 = x[:n1]
-        x2 = x[n1:n1+n2]
-        x3 = x[n1+n2:]
-        
-        B1 = M11.dot(x1)+A12.dot(x2)+A13.dot(x3) 
-        B2 = A21.dot(x1)+M22.dot(x2)+A23.dot(x3) 
-        B3 = A31.dot(x1)+A32.dot(x2)+M33.dot(x3)
-        
-        B = np.concatenate([B1,B2,B3])
-        
-        A = [A11, A12, A13,
-             None, A22, A23,
-             None, None, A33]
-        x += spsolve_kron_block(A, confficients, b-B)
-    return x
+from kron_product import kron_product_csr
 
 # =========================================================================
 def spsolve_kron_sum(matrices, confficients, b, lower):
@@ -224,3 +73,153 @@ def spsolve_kron_sum(matrices, confficients, b, lower):
         raise NotImplementedError('lower =True or False!!!!')
     
     return out
+
+# =========================================================================
+def spsolve_kron_block(matrices, confficients, b):
+    """
+    Solves a triangular system of the form
+
+    | A11   0   0 | [x1] = [y1]
+    | A21 A22   0 | [x2] = [y2]
+    | A31 A32 A33 | [x3] = [y3]
+
+    if A11 and A22 and A33 are lower triangular matrices.
+
+    or
+
+    | A11 A12 A13 | [x1] = [y1]
+    |   0 A22 A23 | [x2] = [y2]
+    |   0   0 A33 | [x3] = [y3]
+
+    if A11 and A22 and A33 are upper triangular matrices.
+    0 matrices must be specified as None
+    """
+    # ...
+    
+    A11 = matrices[0] 
+    A12 = matrices[1] 
+    A13 = matrices[2] 
+    A21 = matrices[3] 
+    A22 = matrices[4] 
+    A23 = matrices[5] 
+    A31 = matrices[6] 
+    A32 = matrices[7] 
+    A33 = matrices[8] 
+    
+    c1 = confficients[0] 
+    c2 = confficients[1]
+    c3 = confficients[2] 
+    
+    n1 = A11[0].shape[0]*A11[1].shape[0]*A11[2].shape[0]
+    n2 = A22[0].shape[0]*A22[1].shape[0]*A22[2].shape[0]
+    #n3 = A33[0].shape[0]*A33[1].shape[0]*A33[2].shape[0]
+    # ...
+    
+    # ...
+    b1 = b[:n1]
+    b2 = b[n1:n1+n2]
+    b3 = b[n1+n2:]
+    # ...
+    
+    # lower triangular matrix case
+    if (A12 is None) and (A13 is None) and (A23 is None):
+        x1 = spsolve_kron_sum(A11, c1, b1, lower=True)
+        
+        w1 = kron_product_csr(A21, x1)
+        x2 = spsolve_kron_sum(A22, c2, b2 - w1, lower=True)
+        
+        w2 = kron_product_csr(A31, x1)+kron_product_csr(A32, x2)
+        x3 = spsolve_kron_sum(A33, c3, b3 - w2, lower=True)
+
+    # upper triangular matrix case
+    elif (A21 is None) and (A31 is None) and (A32 is None):
+        x3 = spsolve_kron_sum(A33, c3, b3, lower=False)
+        
+        w2 = kron_product_csr(A23, x3)
+        x2 = spsolve_kron_sum(A22, c2, b2 - w2, lower=False)
+        
+        w1 = kron_product_csr(A12, x2)+kron_product_csr(A13, x3)
+        x1 = spsolve_kron_sum(A11, c1, b1 - w1, lower=False)
+
+    else:
+        raise ValueError('Wrong entries')
+
+    return np.concatenate([x1,x2,x3])
+
+def Gauss_Seidel(matrices,  confficients, b, x, iterations_number):
+    
+    A11 = matrices[0] 
+    A12 = matrices[1] 
+    A13 = matrices[2] 
+    A21 = matrices[3] 
+    A22 = matrices[4] 
+    A23 = matrices[5] 
+    A31 = matrices[6] 
+    A32 = matrices[7] 
+    A33 = matrices[8] 
+    
+    c1 = confficients[0] 
+    c2 = confficients[1]
+    c3 = confficients[2] 
+    
+    
+    n1 = A11[0].shape[0]*A11[1].shape[0]*A11[2].shape[0]
+    n2 = A22[0].shape[0]*A22[1].shape[0]*A22[2].shape[0]
+    n3 = A33[0].shape[0]*A33[1].shape[0]*A33[2].shape[0]
+    # ...
+     
+    if x == None:
+        x = np.zeros(n1+n2+n3)
+    #A = csr_matrix(A)
+    m = iterations_number
+    #x = x0
+    for i in range(m):
+        x1 = x[:n1]
+        x2 = x[n1:n1+n2]
+        x3 = x[n1+n2:]
+        
+        B1 = c1[0]*kron_product_csr(A11[:3], x1) + c1[1]*kron_product_csr(A11[3:6], x1)\
+            + c1[2]*kron_product_csr(A11[6:], x1) + kron_product_csr(A12, x2)\
+                 + kron_product_csr(A13, x3)
+        
+        B2 = kron_product_csr(A21, x1) + c2[0]*kron_product_csr(A22[:3], x2)\
+            + c2[1]*kron_product_csr(A22[3:6], x2) + c2[2]*kron_product_csr(A22[6:], x2)\
+                + kron_product_csr(A23, x3)
+        
+        B3 = kron_product_csr(A31, x1) + kron_product_csr(A32, x2)\
+            + c3[0]*kron_product_csr(A33[:3], x3) + c3[1]*kron_product_csr(A33[3:6], x3)\
+                + c3[2]*kron_product_csr(A33[6:], x3)\
+            
+        B = np.concatenate([B1,B2,B3])
+        
+        A = [A11, None, None,
+             A21, A22, None,
+             A31, A32, A33]
+        x += spsolve_kron_block(A, confficients, b-B)
+        
+    for i in range(m):
+        x1 = x[:n1]
+        x2 = x[n1:n1+n2]
+        x3 = x[n1+n2:]
+        
+        B1 = c1[0]*kron_product_csr(A11[:3], x1) + c1[1]*kron_product_csr(A11[3:6], x1)\
+            + c1[2]*kron_product_csr(A11[6:], x1) + kron_product_csr(A12, x2)\
+                 + kron_product_csr(A13, x3)
+        
+        B2 = kron_product_csr(A21, x1) + c2[0]*kron_product_csr(A22[:3], x2)\
+            + c2[1]*kron_product_csr(A22[3:6], x2) + c2[2]*kron_product_csr(A22[6:], x2)\
+                + kron_product_csr(A23, x3)
+        
+        B3 = kron_product_csr(A31, x1) + kron_product_csr(A32, x2)\
+            + c3[0]*kron_product_csr(A33[:3], x3) + c3[1]*kron_product_csr(A33[3:6], x3)\
+                + c3[2]*kron_product_csr(A33[6:], x3)\
+            
+        B = np.concatenate([B1,B2,B3])
+        
+        A = [A11, A12, A13,
+             None, A22, A23,
+             None, None, A33]
+        x += spsolve_kron_block(A, confficients, b-B)
+    return x
+
+

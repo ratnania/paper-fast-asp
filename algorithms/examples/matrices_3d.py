@@ -62,13 +62,13 @@ def curl_matrix(T,p, tau, normalize, form):
         
         
     A11 = (D1, M2, K3, D1, K2, M3, D1, M2, M3)
-    A12 = -sp_kron(sp_kron(R1,R2_T),M3)
-    A13 = -sp_kron(sp_kron(R1,M2),R3_T)
-    A21 = -sp_kron(sp_kron(R1_T,R2),M3_T)
+    A12 = (-R1, R2_T, M3)
+    A13 = (-R1, M2, R3_T)
+    A21 = (-R1_T, R2, M3_T)
     A22 = (K1, D2, M3, M1, D2, K3, M1, D2, M3)
-    A23 = -sp_kron(sp_kron(M1,R2),R3_T)
-    A31 = -sp_kron(sp_kron(R1_T,M2),R3)
-    A32 = -sp_kron(sp_kron(M1,R2_T),R3)
+    A23 = (-M1, R2, R3_T)
+    A31 = (-R1_T, M2, R3)
+    A32 = (-M1, R2_T, R3)
     A33 = (M1, K2, D3, K1, M2, D3, M1, M2, D3)
     
     c1 = (1., 1., tau)

@@ -76,7 +76,7 @@ def kron_product_csr(A, x):
 
         return y
 
-
+'''
 from scipy.sparse import kron as sp_kron
 from scipy.sparse import csr_matrix
 
@@ -157,7 +157,7 @@ yb3 = kron_product_csr(A, x)
 #
 print("kron product csr:", max(np.fabs(y-yb3)))
 ###############################################################################
-
+'''
 
 
 
