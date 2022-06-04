@@ -215,10 +215,10 @@ yb2 = np.zeros(A.shape[0]* B.shape[0])
 #x2 = x2.reshape(rA*rB)
 
 ts = timeit.default_timer()
-core_dense.unvec_2d(x, cA, cB, xbar)
+core_dense.unvec_2d_omp(x, cA, cB, xbar)
 core_dense.blas_dense_product(B, xbar, yb1_bis)
 core_dense.blas_dense_product(A, yb1_bis, yb2_bis)
-core_dense.vec_2d(yb2_bis, yb2)
+core_dense.vec_2d_omp(yb2_bis, yb2)
 
 print("2D dot blas product:", timeit.default_timer()-ts, max(np.fabs(y-yb2)))
 

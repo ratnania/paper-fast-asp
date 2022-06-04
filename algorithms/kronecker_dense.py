@@ -34,63 +34,6 @@ def blas_dense_product(A:'float[:,:]', x:'float[:,:]', y:'float[:,:]'):
     y[:,:] = c[:,:]
     
 # =========================================================================
-def vec_2d(x_mat: 'float[:,:]', x: 'float[:]'):
-    """Convert a matrix to a vector form."""
-
-    n1, n2 = x_mat.shape
-
-    for i1 in range(n1):
-        for i2 in range(n2):
-            i = i2 + i1 * n2
-            x[i] = x_mat[i1, i2]
-
-# =========================================================================
-def unvec_2d(x: 'float[:]', n1: int, n2: int, x_mat: 'float[:,:]'):
-    """Convert a vector to a matrix form."""
-
-    for i1 in range(n1):
-        for i2 in range(n2):
-            i = i2 + i1 * n2
-            x_mat[i1, i2] = x[i]
-
-# =========================================================================
-def vec_3d(x_mat: 'float[:,:,:]', x: 'float[:]'):
-    """Convert a matrix to a vector form."""
-
-    n1, n2, n3 = x_mat.shape
-
-    for i1 in range(n1):
-        for i2 in range(n2):
-            for i3 in range(n3):
-                i = i3 + (i2 + i1 * n2) * n3
-                x[i] = x_mat[i1, i2, i3]
-
-# =========================================================================
-def unvec_3d(x: 'float[:]', n1: int, n2: int, n3: int, x_mat: 'float[:,:,:]'):
-    """Convert a vector to a matrix form."""
-
-    for i1 in range(n1):
-        for i2 in range(n2):
-            for i3 in range(n3):
-                i = i3 + (i2 + i1 * n2) * n3
-                x_mat[i1, i2, i3] = x[i]
-
-# =========================================================================
-def mxm(A: 'float[:,:]', x: 'float[:,:]', y: 'float[:,:]'):
-
-    """Matrix-Vector product."""
-
-    n_rows, n_cols = A.shape
-    m = x.shape[0]
-
-    for k in range(m):
-        for i in range(n_rows):
-            wi = 0.
-            for j in range(n_cols):
-                wi += A[i,j] * x[k,j]
-            y[i,k] = wi
-
-# =========================================================================
 def vec_2d_omp(x_mat: 'float[:,:]', x: 'float[:]'):
     """Convert a matrix to a vector form."""
 
@@ -113,22 +56,6 @@ def unvec_2d_omp(x: 'float[:]', n1: int, n2: int, x_mat: 'float[:,:]'):
             x_mat[i1, i2] = x[i]
 
 # =========================================================================
-def mxm_omp(A: 'float[:,:]', x: 'float[:,:]', y: 'float[:,:]'):
-
-    """Matrix-Vector product."""
-
-    n_rows, n_cols = A.shape
-    m = x.shape[0]
-
-    #$ omp for schedule(runtime) collapse(2)
-    for k in range(m):
-        for i in range(n_rows):
-            wi = 0.
-            for j in range(n_cols):
-                wi += A[i,j] * x[k,j]
-            y[i,k] = wi
-
-# =========================================================================
 def kron_2d(A1: 'float[:,:]', A2: 'float[:,:]', 
             n_rows_1: int, n_cols_1: int,
             n_rows_2: int, n_cols_2: int,
@@ -136,7 +63,7 @@ def kron_2d(A1: 'float[:,:]', A2: 'float[:,:]',
             W1: 'float[:,:]', W2: 'float[:,:]', 
             y: 'float[:]'):
     # ...
-    unvec_2d(x, n_cols_1, n_cols_2, W1[0:n_cols_1, 0:n_cols_2])
+    unvec_2d_omp(x, n_cols_1, n_cols_2, W1[0:n_cols_1, 0:n_cols_2])
     
     blas_dense_product(A2, W1[:n_cols_1, 0:n_cols_2], W2[:n_rows_2,:n_cols_1])
     
@@ -145,7 +72,7 @@ def kron_2d(A1: 'float[:,:]', A2: 'float[:,:]',
     # ...
 
     # ...
-    vec_2d(W1[0:n_rows_1, 0:n_rows_2], y)
+    vec_2d_omp(W1[0:n_rows_1, 0:n_rows_2], y)
     # ...
 
 # =========================================================================
