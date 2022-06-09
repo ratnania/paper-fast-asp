@@ -107,6 +107,67 @@ def curl_matrix(T,p, tau, normalize, form):
     return matrices, confficients
 
 # ========================================================================
+def curl_matrix_toarray(T,p, tau, normalize, form):
+    (p1,p2,p3) = (p[0],p[1],p[2])
+    (T1,T2,T3) = (T[0],T[1],T[2])
+
+    D1 = D_matrix(T1,p1, normalize=normalize)
+    D2 = D_matrix(T2,p2, normalize=normalize)
+    D3 = D_matrix(T3,p3, normalize=normalize)
+    M1 = M_matrix(T1,p1)
+    M2 = M_matrix(T2,p2)
+    M3 = M_matrix(T3,p3)
+    K1 = K_matrix(T1,p1)
+    K2 = K_matrix(T2,p2)
+    K3 = K_matrix(T3,p3)
+    R1 = R_matrix(T1,p1, normalize=normalize)
+    R2 = R_matrix(T2,p2, normalize=normalize)
+    R3 = R_matrix(T3,p3, normalize=normalize)
+    
+    if form == 'csr':
+        D1   = csr_matrix(D1)
+        D2   = csr_matrix(D2)
+        D3   = csr_matrix(D3)
+        M1   = csr_matrix(M1)
+        M2   = csr_matrix(M2)
+        M3   = csr_matrix(M3)
+        K1   = csr_matrix(K1)
+        K2   = csr_matrix(K2)
+        K3   = csr_matrix(K3)
+        R1   = csr_matrix(R1)
+        R2   = csr_matrix(R2)
+        R3   = csr_matrix(R3)
+        R1_T = csr_matrix(R1.T)
+        R2_T = csr_matrix(R2.T)
+        R3_T = csr_matrix(R3.T)
+        M3_T = csr_matrix(M3.T)
+        
+        A11 = sp_kron(sp_kron(D1,M2),K3) + sp_kron(sp_kron(D1,K2),M3)
+        A12 = -sp_kron(sp_kron(R1,R2.T),M3)
+        A13 = -sp_kron(sp_kron(R1,M2),R3.T)
+        A21 = -sp_kron(sp_kron(R1.T,R2),M3.T)
+        A22 = sp_kron(sp_kron(K1,D2),M3)+sp_kron(sp_kron(M1,D2),K3)
+        A23 = -sp_kron(sp_kron(M1,R2),R3.T)
+        A31 = -sp_kron(sp_kron(R1.T,M2),R3)
+        A32 = -sp_kron(sp_kron(M1,R2.T),R3)
+        A33 = sp_kron(sp_kron(M1,K2),D3) + sp_kron(sp_kron(K1,M2),D3)
+        
+        Q1 = sp_kron(sp_kron(D1,M2),M3)
+        Q2 = sp_kron(sp_kron(M1,D2),M3)
+        Q3 = sp_kron(sp_kron(M1,M2),D3)
+
+
+        A = bmat([[A11, A12, A13],
+                  [A21, A22, A23],
+                  [A31, A32, A33]])
+
+        A = csr_matrix(A)
+        
+        return A
+        
+        
+
+# ========================================================================
 def curl_shift_matrix(T,p, normalize=True):
     (p1,p2,p3) = (p[0],p[1],p[2])
     (T1,T2,T3) = (T[0],T[1],T[2])
