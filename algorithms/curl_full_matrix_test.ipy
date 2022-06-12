@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import numpy as np
+import time
+import os
+
+from numpy import linalg as la
+
+#from scipy.sparse.linalg import spsolve_triangular, spsolve
+#from scipy.sparse.linalg import 
+#from scipy.sparse import identity, diags, csr_matrix, bmat, tril, triu
+from scipy.sparse import kron as sp_kron # TODO remove
+from scipy.sparse.linalg import spsolve_triangular
+
+
+from tabulate import tabulate
+
+from examples.matrices_3d import curl_matrix_toarray
+from examples.asp_1d import knot_vector
+
+from utulities import Gauss_Seidel
+
+sprint = lambda x: '{:.2e}'.format(x)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                                   Data
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ps            = (1, 2, 3, 4, 5)
+ks            = (3, 4, 5, 6)
+tau           = 10.**4
+problem      = 'curl'
+m             = 1
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                    The main function
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def main(k, p, m, problem):
+    print('============pb={problem}, m={m}, p = {p}, k = {k}============'
+          .format(problem= problem, m=m, p=p,k=k))
+
+    tb   = time.time()
+    info = {}
+
+    n  = 2**k 
+    T1 = knot_vector(n, p)
+    T2 = knot_vector(n, p)
+    T3 = knot_vector(n, p)
+    T  = (T1,T2,T3)
+    
+    if  problem == 'curl':
+        A = curl_matrix_toarray(T         = T, 
+                                p         = (p, p, p), 
+                                tau       = tau,
+                                normalize = True, 
+                                form      = 'csr')
+    else : 
+        "TODO"
+    N = A.shape[1]
+    b = np.random.random(N)
+    
+    x  = Gauss_Seidel(A                 = A, 
+                      b                 = b, 
+                      kind              = 'symmetric', 
+                      x0                = None, 
+                      iterations_number = m, 
+                      spsolve           = spsolve_triangular)
+    
+    te = time.time()
+    info['elapsed'] = te-tb
+    print('elapsed_time: ', sprint(te-tb))
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                               Run tests
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+%load_ext memory_profiler
+for k in ks:
+    for p in ps:
+        %memit main(k, p, m, problem)
